@@ -1,0 +1,3688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InvestAI — Sistema Inteligente de Inversión</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ========== PANTALLA DE LOGIN ========== */
+    #screen-login {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 20px;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .login-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+
+    .login-header p {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #f8fafc;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .form-group input::placeholder {
+      color: #64748b;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-block;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 12px;
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .login-links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+
+    .login-links a {
+      color: #38bdf8;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .login-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* ========== APLICACIÓN PRINCIPAL ========== */
+    #app-main {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ========== NAVBAR ========== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: #111827;
+      border-bottom: 1px solid #1f2937;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .navbar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .navbar-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .navbar-tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .navbar-tabs::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 2px;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      background-color: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .tab.active {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .navbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .ticker-select {
+      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      color: #f8fafc;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #26A69A;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .btn-logout {
+      padding: 8px 14px;
+      background-color: #EF5350;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-logout:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(239, 83, 80, 0.3);
+    }
+
+    /* ========== CONTENIDO PRINCIPAL ========== */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    section {
+      display: none;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    .module-header {
+      margin-bottom: 20px;
+    }
+
+    .module-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 4px;
+    }
+
+    .module-header p {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .control-group label {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .control-group select,
+    .control-group input {
+      padding: 6px 10px;
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #f8fafc;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .grid-12 {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .col-8 { grid-column: span 8; }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 6; }
+    .col-9 { grid-column: span 9; }
+    .col-3 { grid-column: span 3; }
+    .col-12 { grid-column: span 12; }
+
+    .card {
+      background-color: #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 12px;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .metric-positive {
+      color: #26A69A;
+    }
+
+    .metric-negative {
+      color: #EF5350;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 400px;
+      position: relative;
+    }
+
+    /* ========== M3: PREDICCIÓN SVM - FONDO OSCURO ========== */
+    #module-m3 {
+      background-color: #0f172a;
+    }
+
+    .signal-light {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      opacity: 0.2;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0px rgba(0, 0, 0, 0);
+    }
+
+    .signal-light.active {
+      opacity: 1;
+      box-shadow: 0 0 25px currentColor;
+    }
+
+    .signal-light.buy {
+      background-color: #26A69A;
+    }
+
+    .signal-light.hold {
+      background-color: #FFC107;
+    }
+
+    .signal-light.sell {
+      background-color: #EF5350;
+    }
+
+    .traffic-light {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .traffic-light-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .metric-box {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric-box-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .metric-box-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    /* ========== TABS Y SELECTORES ========== */
+    .tab-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      padding: 8px 14px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+      background-color: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    /* ========== TABLAS ========== */
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .params-table tr {
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    .params-table td {
+      padding: 10px 4px;
+      color: #94a3b8;
+      vertical-align: top;
+    }
+
+    .params-table td:first-child {
+      font-weight: 600;
+      color: #f8fafc;
+      width: 45%;
+    }
+
+    .strategy-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .strategy-table thead {
+      background-color: #1e293b;
+      border-bottom: 2px solid #334155;
+    }
+
+    .strategy-table th {
+      padding: 10px;
+      text-align: left;
+      color: #f8fafc;
+      font-weight: 600;
+    }
+
+    .strategy-table td {
+      padding: 10px;
+      border-bottom: 1px solid #334155;
+      color: #94a3b8;
+    }
+
+    .strategy-table tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ========== NEWS FEED ========== */
+    .news-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .news-item {
+      background-color: #1e293b;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .news-sentiment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .news-sentiment.bullish {
+      background-color: rgba(38, 166, 154, 0.2);
+      color: #26A69A;
+    }
+
+    .news-sentiment.bearish {
+      background-color: rgba(239, 83, 80, 0.2);
+      color: #EF5350;
+    }
+
+    .news-sentiment.neutral {
+      background-color: rgba(255, 193, 7, 0.2);
+      color: #FFC107;
+    }
+
+    .news-content {
+      flex: 1;
+    }
+
+    .news-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 4px;
+    }
+
+    .news-text {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .news-meta {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* ========== MODAL ========== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: #1e293b;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 16px;
+    }
+
+    .modal-body {
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-confirm {
+      padding: 10px 16px;
+      background-color: #26A69A;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-confirm:hover:not(:disabled) {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(38, 166, 154, 0.3);
+    }
+
+    .btn-confirm:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      padding: 10px 16px;
+      background-color: #475569;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .col-8 { grid-column: span 6; }
+      .col-4 { grid-column: span 6; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .navbar-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .col-8, .col-4, .col-6 {
+        grid-column: span 12;
+      }
+
+      .controls-row {
+        flex-direction: column;
+      }
+
+      .control-group {
+        width: 100%;
+      }
+
+      .control-group select,
+      .control-group input {
+        width: 100%;
+      }
+
+      .main-content {
+        padding: 12px;
+      }
+
+      .module-header h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- PANTALLA DE LOGIN -->
+  <div id="screen-login">
+    <div class="login-container">
+      <div class="login-header">
+        <h1>📈 InvestAI</h1>
+        <p>Sistema Inteligente de Inversión</p>
+      </div>
+
+      <div id="login-form">
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input type="email" id="email" placeholder="demo@investai.com">
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="demo123">
+        </div>
+        <button class="btn btn-primary" onclick="handleLogin()">Iniciar Sesión</button>
+        <button class="btn btn-secondary" onclick="toggleRegister()">Crear Cuenta Nueva</button>
+        <div class="login-links">
+          <a onclick="toggleRecovery()">¿Olvidaste tu contraseña?</a>
+        </div>
+      </div>
+
+      <div id="register-form" class="hidden">
+        <div class="form-group">
+          <label for="fullname">Nombre Completo</label>
+          <input type="text" id="fullname" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Correo Electrónico</label>
+          <input type="email" id="reg-email" placeholder="tu@email.com">
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Contraseña</label>
+          <input type="password" id="reg-password" placeholder="Mínimo 8 caracteres">
+        </div>
+        <div class="form-group">
+          <label for="reg-password-confirm">Confirmar Contraseña</label>
+          <input type="password" id="reg-password-confirm" placeholder="Repite tu contraseña">
+        </div>
+        <div class="form-group">
+          <label for="investor-profile">Perfil de Inversor</label>
+          <select id="investor-profile">
+            <option value="conservative">Conservador</option>
+            <option value="moderate">Moderado</option>
+            <option value="aggressive">Agresivo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="terms-check"> Acepto los Términos y Condiciones
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="handleRegister()">Registrarse</button>
+        <button class="btn btn-secondary" onclick="toggleRegister()">Volver al Login</button>
+      </div>
+
+      <div id="recovery-form" class="hidden">
+        <div class="form-group">
+          <label for="recovery-email">Correo Electrónico</label>
+          <input type="email" id="recovery-email" placeholder="tu@email.com">
+        </div>
+        <button class="btn btn-primary" onclick="handleRecovery()">Enviar Enlace de Recuperación</button>
+        <button class="btn btn-secondary" onclick="toggleRecovery()">Volver al Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APLICACIÓN PRINCIPAL -->
+  <div id="app-main" class="hidden">
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-logo">📈 InvestAI</div>
+      <div class="navbar-tabs">
+        <button class="tab active" onclick="switchModule('m2', event)">📊 Mercado</button>
+        <button class="tab" onclick="switchModule('msvc', event)">🎯 Clas. SVC</button>
+        <button class="tab" onclick="switchModule('m3', event)">🧠 Clas. RNN</button>
+        <button class="tab" onclick="switchModule('m4', event)">🧠 LSTM</button>
+        <button class="tab" onclick="switchModule('m5', event)">📰 NLP</button>
+        <button class="tab" onclick="switchModule('m6', event)">⚡ Estrategias</button>
+        <button class="tab" onclick="switchModule('m7', event)">💼 Portafolio</button>
+        <button class="tab" onclick="switchModule('m8', event)">🚀 Broker</button>
+        <button class="tab" onclick="switchModule('m9', event)">🏆 Dashboard</button>
+        <button class="tab" onclick="switchModule('m10', event)">⚙️ Modelos</button>
+        <button class="tab" onclick="switchModule('m11', event)">📋 Backtesting</button>
+      </div>
+      <div class="navbar-controls">
+        <div class="status-indicator">
+          <span>BULLISH</span>
+          <div class="status-dot"></div>
+        </div>
+        <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
+      </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+      <!-- M2: DASHBOARD DE MERCADO -->
+      <section id="module-m2" class="active">
+        <div class="module-header">
+          <h2>📊 Dashboard de Mercado</h2>
+          <p>Gráfico candlestick con indicadores técnicos en tiempo real</p>
+        </div>
+
+        <div class="controls-row">
+          <div class="tab-selector">
+            <button class="tab-btn active" onclick="switchMarketTab('acciones', event)">🏔️ Mineras</button>
+          </div>
+          <div class="control-group">
+            <label>Ticker:</label>
+            <select class="ticker-select" id="m2-ticker" onchange="onTickerChange(this.value)">
+              <option value="FSM" selected>FSM — Fortuna Silver</option>
+              <option value="VOLCABC1.LM">VOLCABC1.LM — Volcan</option>
+              <option value="ABX.TO">ABX.TO — Barrick Gold</option>
+              <option value="BVN">BVN — Buenaventura</option>
+              <option value="BHP">BHP — BHP Billiton</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Período:</label>
+            <select id="m2-period" onchange="renderM2()">
+              <option value="30">1 Mes</option>
+              <option value="90" selected>3 Meses</option>
+              <option value="180">6 Meses</option>
+              <option value="365">1 Año</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>
+              <input type="checkbox" id="sma20" checked onchange="renderM2()"> SMA20
+            </label>
+            <label>
+              <input type="checkbox" id="sma50" checked onchange="renderM2()"> SMA50
+            </label>
+            <label>
+              <input type="checkbox" id="ema12" onchange="renderM2()"> EMA12
+            </label>
+            <label>
+              <input type="checkbox" id="bollinger" onchange="renderM2()"> Bollinger
+            </label>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-8">
+            <div class="chart-container">
+              <div id="m2-chart"></div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Precio Actual</div>
+              <div class="metric-value" id="m2-price">$189.23</div>
+              <div class="metric-label">AAPL</div>
+            </div>
+            <div class="card" style="margin-top: 12px;">
+              <div class="card-title">Variación 24h</div>
+              <div class="metric-value metric-positive" id="m2-change">+2.45%</div>
+              <div class="metric-label">Cambio porcentual</div>
+            </div>
+            <div class="card" style="margin-top: 12px;">
+              <div class="card-title">Volumen</div>
+              <div class="metric-value" id="m2-volume">52.3M</div>
+              <div class="metric-label">Acciones negociadas</div>
+            </div>
+            <div class="card" style="margin-top: 12px;">
+              <div class="card-title">Market Cap</div>
+              <div class="metric-value" id="m2-market-cap">$2.95T</div>
+              <div class="metric-label">Capitalización</div>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top:12px; font-size:12px; color:#94a3b8; text-align:center;">
+          Datos reales de Yahoo Finance · Precios OHLCV vía MongoDB + FastAPI · <span id="m2-fecha">—</span>
+        </p>
+      </section>
+      <section id="module-msvc">
+        <div class="module-header">
+          <h2>🎯 Clasificador SVC — Support Vector Machine</h2>
+          <p>Clasificación binaria BUY / SELL · GridSearchCV · scikit-learn · Datos reales vía FastAPI</p>
+        </div>
+
+        <div class="controls-row">
+          <div class="control-group">
+            <label>Ticker:</label>
+            <select id="msvc-ticker" onchange="renderMSVC()">
+              <option value="FSM" selected>FSM — Fortuna Silver Mines</option>
+              <option value="VOLCABC1.LM">VOLCABC1.LM — Volcan Minera</option>
+              <option value="ABX.TO">ABX.TO — Barrick Gold</option>
+              <option value="BVN">BVN — Buenaventura</option>
+              <option value="BHP">BHP — BHP Billiton</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Período (gráfico):</label>
+            <select id="msvc-period" onchange="renderMSVC()">
+              <option value="90">90 días</option>
+              <option value="180" selected>180 días</option>
+              <option value="365">365 días</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="renderMSVC(true)" style="padding: 8px 16px;">↻ Actualizar</button>
+        </div>
+
+        <!-- Fila 1: gráfico + señal + métricas -->
+        <div class="grid-12">
+          <div class="col-8">
+            <div class="chart-container">
+              <div id="msvc-chart" style="height:500px;"></div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card" style="height:100%;">
+              <div class="card-title">Señal Actual — SVC</div>
+              <div class="traffic-light" style="margin: 16px 0;">
+                <div class="signal-light buy"  id="msvc-light-buy">BUY</div>
+                <div class="traffic-light-label">BUY</div>
+                <div class="signal-light hold" id="msvc-light-hold" style="margin-top:12px;">HOLD</div>
+                <div class="traffic-light-label">HOLD</div>
+                <div class="signal-light sell" id="msvc-light-sell" style="margin-top:12px;">SELL</div>
+                <div class="traffic-light-label">SELL</div>
+              </div>
+              <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:14px; margin-top:4px;">
+                <div class="card-title">Métricas del Modelo</div>
+                <div class="metrics-grid">
+                  <div class="metric-box">
+                    <div class="metric-box-label">Accuracy</div>
+                    <div class="metric-box-value" id="msvc-accuracy">—</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-box-label">F1-Score</div>
+                    <div class="metric-box-value" id="msvc-f1">—</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-box-label">Precision</div>
+                    <div class="metric-box-value" id="msvc-precision">—</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-box-label">Recall</div>
+                    <div class="metric-box-value" id="msvc-recall">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 2: matriz de confusión + hiperparámetros + barras -->
+        <div class="grid-12" style="margin-top:20px;">
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Matriz de Confusión (2×2)</div>
+              <div style="height:320px;">
+                <div id="msvc-confusion" style="height:100%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Métricas — Accuracy / F1</div>
+              <div style="height:320px;">
+                <div id="msvc-metrics-chart" style="height:100%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Hiperparámetros Óptimos (GridSearchCV)</div>
+              <table class="params-table" style="margin-top:12px; width:100%;">
+                <tr><td>Kernel</td><td id="msvc-param-kernel">—</td></tr>
+                <tr><td>C</td><td id="msvc-param-c">—</td></tr>
+                <tr><td>Gamma</td><td id="msvc-param-gamma">—</td></tr>
+                <tr><td>CV Folds</td><td id="msvc-param-cv">—</td></tr>
+                <tr><td>Test size</td><td id="msvc-param-test">—</td></tr>
+                <tr><td>Scoring</td><td>F1</td></tr>
+              </table>
+              <div style="margin-top:16px; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
+                <div class="card-title">Empresa</div>
+                <p id="msvc-company" style="font-size:13px; color:#94a3b8; margin-top:6px;">—</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top:12px; font-size:12px; color:#94a3b8; text-align:center;">
+          Datos reales de Yahoo Finance · Clasificador SVC con scikit-learn · <span id="msvc-fecha">—</span>
+        </p>
+      </section>
+
+      <!-- M3: PREDICCIÓN SVM -->
+      <section id="module-m3">
+        <div class="module-header">
+          <h2>🧠 Clasificadores RNN (LSTM · BiLSTM · GRU · SimpleRNN)</h2>
+          <p>Clasificación binaria BUY / SELL · Ventana: 20 días · Datos reales via FastAPI</p>
+        </div>
+
+        <div class="controls-row">
+          <div class="control-group">
+            <label>Ticker:</label>
+            <select id="m3-ticker" onchange="renderM3()">
+              <option value="FSM" selected>FSM — Fortuna Silver Mines</option>
+              <option value="VOLCABC1.LM">VOLCABC1.LM — Volcan Minera</option>
+              <option value="ABX.TO">ABX.TO — Barrick Gold</option>
+              <option value="BVN">BVN — Buenaventura</option>
+              <option value="BHP">BHP — BHP Billiton</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Período:</label>
+            <select id="m3-period" onchange="renderM3()">
+              <option value="90">90 días</option>
+              <option value="180" selected>180 días</option>
+              <option value="365">365 días</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Arquitectura:</label>
+            <select id="m3-arch" onchange="renderM3()">
+              <option value="LSTM" selected>LSTM</option>
+              <option value="BiLSTM">BiLSTM</option>
+              <option value="GRU">GRU</option>
+              <option value="SimpleRNN">SimpleRNN</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="renderM3(true)" style="padding: 8px 16px;">↻ Actualizar</button>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-8">
+            <div class="chart-container">
+              <div id="m3-chart" style="height:500px;"></div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Señal Actual RNN (<span id="m3-arch-label">LSTM</span>)</div>
+              <div class="traffic-light" style="margin: 16px 0;">
+                <div class="signal-light buy" id="m3-light-buy">BUY</div>
+                <div class="traffic-light-label">BUY</div>
+                <div class="signal-light hold" id="m3-light-hold" style="margin-top: 12px;">HOLD</div>
+                <div class="traffic-light-label">HOLD</div>
+                <div class="signal-light sell" id="m3-light-sell" style="margin-top: 12px;">SELL</div>
+                <div class="traffic-light-label">SELL</div>
+              </div>
+              <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
+                <div class="card-title">Métricas del Modelo</div>
+                <div class="metrics-grid">
+                  <div class="metric-box">
+                    <div class="metric-box-label">Accuracy</div>
+                    <div class="metric-box-value" id="m3-accuracy">—</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-box-label">F1-Score</div>
+                    <div class="metric-box-value" id="m3-f1">—</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-box-label">Precision</div>
+                    <div class="metric-box-value" id="m3-precision">—</div>
+                  </div>
+                  <div class="metric-box">
+                    <div class="metric-box-label">Recall</div>
+                    <div class="metric-box-value" id="m3-recall">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-top: 20px;">
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Matriz de Confusión 2×2</div>
+              <div style="height:320px;">
+                <div id="m3-confusion-matrix" style="height:100%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Comparativa de Arquitecturas RNN</div>
+              <div style="height:320px;">
+                <div id="m3-class-distribution" style="height:100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top: 12px; font-size: 12px; color: #94a3b8; text-align: center;">
+          Datos reales de Yahoo Finance · Modelos entrenados con TensorFlow/Keras · <span id="m3-fecha-act">—</span>
+        </p>
+      </section>
+
+      <!-- M4: LSTM REGRESSOR -->
+      <section id="module-m4">
+        <div class="module-header">
+          <h2>🧠 LSTM Regressor — Pronóstico de Precios</h2>
+          <p>Arquitectura: LSTM(64)→Dropout(0.2)→LSTM(32)→Dropout(0.2)→Dense(16,relu)→Dense(1,linear)</p>
+        </div>
+
+        <div class="controls-row">
+          <div class="control-group">
+            <label>Ticker:</label>
+            <select id="m4-ticker" onchange="renderM4()">
+              <option value="FSM" selected>FSM — Fortuna Silver Mines</option>
+              <option value="VOLCABC1.LM">VOLCABC1.LM — Volcan Minera</option>
+              <option value="ABX.TO">ABX.TO — Barrick Gold</option>
+              <option value="BVN">BVN — Buenaventura</option>
+              <option value="BHP">BHP — BHP Billiton</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Días de predicción: <strong id="m4-days-value">14</strong></label>
+            <input type="range" id="m4-slider" min="0" max="3" value="1" onchange="updateM4Slider()" style="width: 150px;">
+            <span style="font-size: 12px; color: #94a3b8;">(7 / 14 / 30 / 60 días)</span>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-9">
+            <div class="chart-container" style="height: 500px;">
+              <div id="m4-chart"></div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Parámetros del Modelo</div>
+              <table class="params-table">
+                <tr><td>Épocas entrenadas</td><td id="m4-epocas">—</td></tr>
+                <tr><td>Dropout</td><td>0.2</td></tr>
+                <tr><td>Batch Size</td><td>32</td></tr>
+                <tr><td>Ventana</td><td>60 días</td></tr>
+                <tr><td>Learning Rate</td><td>0.001</td></tr>
+                <tr><td>Arquitectura</td><td>LSTM(64→32)→Dense(16)</td></tr>
+                <tr><td>Optimizador</td><td>Adam</td></tr>
+                <tr><td>Loss</td><td>MSE</td></tr>
+              </table>
+            </div>
+            <div class="card" style="margin-top: 12px;">
+              <div class="card-title">Métricas de Precisión</div>
+              <table class="params-table">
+                <tr><td>Precio Actual</td><td id="m4-precio-actual">—</td></tr>
+                <tr><td>RMSE (USD)</td><td id="m4-rmse-usd">—</td></tr>
+                <tr><td>RMSE (%)</td><td id="m4-rmse-pct">—</td></tr>
+                <tr><td>MAE</td><td id="m4-mae">—</td></tr>
+                <tr><td>R²</td><td id="m4-r2">—</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top:12px; font-size:12px; color:#94a3b8; text-align:center;">
+          Datos reales de Yahoo Finance · Regresor LSTM con TensorFlow/Keras · <span id="m4-fecha">—</span>
+        </p>
+      </section>
+
+      <!-- M5: ANÁLISIS NLP -->
+      <section id="module-m5">
+        <div class="module-header">
+          <h2>📰 Análisis de Noticias NLP</h2>
+          <p>Feed de noticias con análisis de sentimiento BULLISH/BEARISH/NEUTRAL</p>
+        </div>
+
+        <div class="controls-row">
+          <div class="control-group">
+            <label>Fuente:</label>
+            <select id="m5-source" onchange="renderM5()">
+              <option value="all">Todas</option>
+              <option value="bloomberg">Bloomberg</option>
+              <option value="cnbc">CNBC</option>
+              <option value="reuters">Reuters</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Sentimiento:</label>
+            <select id="m5-sentiment" onchange="renderM5()">
+              <option value="all">Todos</option>
+              <option value="bullish">Bullish</option>
+              <option value="bearish">Bearish</option>
+              <option value="neutral">Neutral</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="news-feed" id="m5-news-feed"></div>
+      </section>
+
+      <!-- M6: ESTRATEGIAS -->
+      <section id="module-m6">
+        <div class="module-header">
+          <h2>⚡ Optimizador de Portafolio — Markowitz</h2>
+          <p>Frontera eficiente sobre los 5 activos mineros del proyecto (Notebook 9)</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-title">Configuración de Estrategia</div>
+          <div class="controls-row">
+            <div class="control-group">
+              <label>Capital Inicial (USD)</label>
+              <input type="number" id="m6-capital" value="100000" onchange="renderM6()">
+            </div>
+            <div class="control-group">
+              <label>Horizonte Temporal</label>
+              <select id="m6-horizon" onchange="renderM6()">
+                <option value="3m">3 Meses</option>
+                <option value="6m">6 Meses</option>
+                <option value="1y" selected>1 Año</option>
+                <option value="3y">3 Años</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Nivel de Riesgo</label>
+              <select id="m6-risk" onchange="renderM6()">
+                <option value="conservador">Conservador</option>
+                <option value="moderado" selected>Moderado</option>
+                <option value="agresivo">Agresivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-bottom: 20px;">
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Capital Asignado</div>
+              <div class="metric-value" id="m6-capital-display">$100,000</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Retorno Esperado (Anual)</div>
+              <div class="metric-value metric-positive" id="m6-retorno-esperado">—</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Volatilidad Anual</div>
+              <div class="metric-value" id="m6-volatilidad">—</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Sharpe Ratio</div>
+              <div class="metric-value" id="m6-sharpe">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-8">
+            <div class="card">
+              <div class="card-title">Asignación de Activos (Markowitz — sin venta en corto)</div>
+              <table class="strategy-table">
+                <thead>
+                  <tr>
+                    <th>Activo</th>
+                    <th>Tipo</th>
+                    <th>Asignación %</th>
+                    <th>Riesgo</th>
+                    <th>Rendimiento Est.</th>
+                  </tr>
+                </thead>
+                <tbody id="m6-assets-table">
+                  <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Cargando asignación óptima…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Distribución de Portafolio</div>
+              <div style="height: 260px;">
+                <canvas id="m6-portfolio-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-top: 20px;">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-title">Frontera Eficiente — Retorno vs. Volatilidad</div>
+              <div style="height: 320px;" id="m6-frontier-chart"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- M7: PORTAFOLIO -->
+      <section id="module-m7">
+        <div class="module-header">
+          <h2>💼 Gestión de Portafolio</h2>
+          <p>Distribución, posiciones y curva de equity — simulación diversificada (Notebook 10)</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="controls-row">
+            <div class="control-group">
+              <label>Modelo de Señales</label>
+              <select id="m7-model" onchange="renderM7()">
+                <option value="SVC">SVC</option>
+                <option value="LSTM" selected>LSTM</option>
+                <option value="BiLSTM">BiLSTM</option>
+                <option value="GRU">GRU</option>
+                <option value="SimpleRNN">SimpleRNN</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Perfil de Riesgo</label>
+              <select id="m7-risk" onchange="renderM7()">
+                <option value="conservador">Conservador</option>
+                <option value="moderado" selected>Moderado</option>
+                <option value="agresivo">Agresivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-bottom: 20px;">
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Valor Total</div>
+              <div class="metric-value" id="m7-valor-total">—</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Ganancia/Pérdida</div>
+              <div class="metric-value" id="m7-pnl">—</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Retorno %</div>
+              <div class="metric-value" id="m7-retorno">—</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <div class="card-title">Sharpe Ratio</div>
+              <div class="metric-value" id="m7-sharpe">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Posiciones (5 sleeves — 1 por ticker)</div>
+              <table class="strategy-table">
+                <thead>
+                  <tr>
+                    <th>Activo</th>
+                    <th>Cantidad</th>
+                    <th>Precio Entrada</th>
+                    <th>Precio Actual</th>
+                    <th>P&L</th>
+                  </tr>
+                </thead>
+                <tbody id="m7-positions-table">
+                  <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Cargando posiciones…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Distribución del Portafolio</div>
+              <div style="height: 300px;">
+                <canvas id="m7-distribution-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-top: 20px;">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-title">Curva de Equity</div>
+              <div style="height: 300px;">
+                <canvas id="m7-equity-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- M8: BROKER -->
+      <section id="module-m8">
+        <div class="module-header">
+          <h2>🚀 Envío de Señales al Broker</h2>
+          <p>Formulario de orden + historial de ejecuciones</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px; background-color: #111827;">
+          <div style="display: flex; gap: 20px; align-items: center; font-size: 12px; color: #94a3b8;">
+            <div>● Conectado a Interactive Brokers</div>
+            <div>Latencia TWS: 12ms</div>
+            <div>Cuenta: DU123456 (Paper Trading)</div>
+            <div>Poder Adquisitivo: $98,432.50</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px; background-color: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3);">
+          <div style="color: #FFC107; font-size: 12px;">
+            ⚠️ PAPER TRADING — Órdenes simuladas. Este es un entorno de prueba sin dinero real.
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-5">
+            <div class="card">
+              <div class="card-title">Nueva Orden</div>
+              <div class="controls-row" style="flex-direction: column;">
+                <div class="control-group" style="width: 100%;">
+                  <label>Ticker</label>
+                  <select id="m8-ticker" style="width: 100%;">
+                    <option value="AAPL">AAPL</option>
+                    <option value="MSFT">MSFT</option>
+                    <option value="GOOGL">GOOGL</option>
+                  </select>
+                </div>
+                <div class="control-group" style="width: 100%;">
+                  <label>Dirección</label>
+                  <select id="m8-direction" style="width: 100%;">
+                    <option value="BUY">BUY (Verde)</option>
+                    <option value="SELL">SELL (Rojo)</option>
+                  </select>
+                </div>
+                <div class="control-group" style="width: 100%;">
+                  <label>Tipo de Orden</label>
+                  <select id="m8-order-type" style="width: 100%;">
+                    <option value="Market">Market</option>
+                    <option value="Limit">Limit</option>
+                    <option value="Stop">Stop</option>
+                    <option value="Stop-Limit">Stop-Limit</option>
+                  </select>
+                </div>
+                <div class="control-group" style="width: 100%;">
+                  <label>Cantidad (acciones)</label>
+                  <input type="number" id="m8-quantity" value="10" min="1" style="width: 100%;">
+                </div>
+              </div>
+
+              <div style="background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; margin-top: 12px; font-size: 12px;">
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <span>Precio Est.:</span>
+                  <strong id="m8-preview-price">$189.23</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <span>Costo Total Est.:</span>
+                  <strong id="m8-preview-total">$1,892.30</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <span>Comisión Est.:</span>
+                  <strong id="m8-preview-commission">$1.89</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; font-weight: 700;">
+                  <span>Total con Comisión:</span>
+                  <strong id="m8-preview-total-commission">$1,894.19</strong>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" onclick="openOrderConfirmation()" style="width: 100%; margin-top: 12px;">
+                Enviar Orden
+              </button>
+            </div>
+          </div>
+
+          <div class="col-7">
+            <div class="card">
+              <div class="card-title">Historial de Órdenes</div>
+              <div style="max-height: 400px; overflow-y: auto;">
+                <table class="strategy-table">
+                  <thead>
+                    <tr>
+                      <th>Hora</th>
+                      <th>Ticker</th>
+                      <th>Dir.</th>
+                      <th>Tipo</th>
+                      <th>Qty</th>
+                      <th>Precio</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="m8-order-history">
+                    <tr>
+                      <td>14:32</td>
+                      <td>AAPL</td>
+                      <td>BUY</td>
+                      <td>Market</td>
+                      <td>10</td>
+                      <td>$189.23</td>
+                      <td><span style="background-color: rgba(38, 166, 154, 0.2); color: #26A69A; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Filled</span></td>
+                    </tr>
+                    <tr>
+                      <td>14:15</td>
+                      <td>MSFT</td>
+                      <td>SELL</td>
+                      <td>Limit</td>
+                      <td>5</td>
+                      <td>$345.67</td>
+                      <td><span style="background-color: rgba(38, 166, 154, 0.2); color: #26A69A; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Filled</span></td>
+                    </tr>
+                    <tr>
+                      <td>13:45</td>
+                      <td>GOOGL</td>
+                      <td>BUY</td>
+                      <td>Market</td>
+                      <td>3</td>
+                      <td>$142.50</td>
+                      <td><span style="background-color: rgba(255, 193, 7, 0.2); color: #FFC107; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">Pending</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- M9: DASHBOARD COMPLETO -->
+      <section id="module-m9">
+        <div class="module-header">
+          <h2>🏆 InvestAI — Dashboard Central Integrado</h2>
+          <p>Ensamblado de 16 Modelos · Señal Consolidada en Tiempo Real</p>
+        </div>
+
+        <div class="card" style="background-color: #111827; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 20px; font-size: 12px;">
+            <span>Ticker: <strong id="m9-ticker">AAPL</strong></span>
+            <span>Precio: <strong id="m9-price">$189.23</strong></span>
+            <span>Variación: <strong id="m9-change">+2.45%</strong></span>
+            <span>Última actualización: <strong>hace 2 min</strong></span>
+          </div>
+          <button class="btn btn-primary" onclick="executeFullAnalysis()" style="padding: 8px 16px;">▶ Ejecutar Análisis</button>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-8" style="grid-row: span 2;">
+            <div class="card">
+              <div class="card-title">Gráfico Central Integrado</div>
+              <div style="height: 400px;">
+                <div id="m9-main-chart"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Consola de Señales IA</div>
+              <div style="background-color: #1e293b; border-radius: 8px; padding: 12px; max-height: 300px; overflow-y: auto;" id="m9-signals-list">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 12px;">
+                  <span>SVM</span>
+                  <span style="background-color: rgba(38, 166, 154, 0.2); color: #26A69A; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">BUY</span>
+                  <span style="color: #64748b; font-size: 11px;">83%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 12px;">
+                  <span>LSTM Clf</span>
+                  <span style="background-color: rgba(38, 166, 154, 0.2); color: #26A69A; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">BUY</span>
+                  <span style="color: #64748b; font-size: 11px;">81%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 12px;">
+                  <span>XGBoost</span>
+                  <span style="background-color: rgba(255, 193, 7, 0.2); color: #FFC107; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">HOLD</span>
+                  <span style="color: #64748b; font-size: 11px;">86%</span>
+                </div>
+              </div>
+              <div style="background-color: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 16px; text-align: center; margin-top: 12px;">
+                <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">SEÑAL ENSAMBLADO:</div>
+                <div style="font-size: 24px; font-weight: 700; color: #f8fafc;">BUY</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Métricas en Tiempo Real</div>
+              <table class="params-table" style="font-size: 11px;">
+                <tr><td>SVM</td><td>83.5% | 0.82</td></tr>
+                <tr><td>LSTM Clf</td><td>81.2% | 0.79</td></tr>
+                <tr><td>XGBoost</td><td>86.1% | 0.85</td></tr>
+                <tr><td>RFC</td><td>79.4% | 0.77</td></tr>
+                <tr><td>ARIMA-LSTM</td><td>$3.24 | 0.946</td></tr>
+                <tr><td>GRU</td><td>82.7% | 0.81</td></tr>
+                <tr><td>NLP VADER</td><td>+0.34 | BULLISH</td></tr>
+                <tr style="background-color: rgba(37, 99, 235, 0.1); font-weight: 700;"><td>Ensamblado</td><td>87.3% | 0.86</td></tr>
+              </table>
+              <div style="margin-top: 8px; font-size: 10px; color: #64748b;">
+                Última ejecución: hace 3 minutos
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-top: 20px;">
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Curva de Equity del Backtesting</div>
+              <div style="height: 250px;">
+                <canvas id="m9-equity-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Histograma de Retornos</div>
+              <div style="height: 250px;">
+                <canvas id="m9-returns-histogram"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- M10: CONSOLA DE MODELOS -->
+      <section id="module-m10">
+        <div class="module-header">
+          <h2>⚙️ AI Model Console — Configuración y Control de los 16 Modelos</h2>
+          <p>Selecciona modelos, ajusta hiperparámetros y ejecuta análisis</p>
+        </div>
+
+        <div class="controls-row">
+          <button class="btn btn-primary" onclick="selectAllModels()" style="padding: 8px 16px;">Seleccionar Todos</button>
+          <button class="btn btn-secondary" onclick="deselectAllModels()" style="padding: 8px 16px;">Deseleccionar Todos</button>
+          <button class="btn btn-primary" onclick="executeSelectedModels()" style="padding: 8px 16px;">▶ Ejecutar Modelos</button>
+        </div>
+
+        <div id="m10-progress-bar" class="hidden" style="margin-bottom: 16px;">
+          <div style="background-color: #1e293b; border-radius: 8px; height: 4px; overflow: hidden;">
+            <div id="m10-progress-fill" style="background-color: #2563eb; height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Selección de Modelos</div>
+<div class="models-list" style="max-height: 400px; overflow-y: auto;">
+                <div style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">CLASIFICADORES</div>
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 12px;">
+                  <input type="checkbox" checked>
+                  <span style="flex: 1; color: #f8fafc; font-weight: 600;">SVC</span>
+                  <span style="background-color: rgba(255, 255, 255, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #94a3b8;">scikit-learn</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 12px;">
+                  <input type="checkbox" checked>
+                  <span style="flex: 1; color: #f8fafc; font-weight: 600;">LSTM Clf</span>
+                  <span style="background-color: rgba(255, 255, 255, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #94a3b8;">TensorFlow</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 12px;">
+                  <input type="checkbox" checked>
+                  <span style="flex: 1; color: #f8fafc; font-weight: 600;">XGBoost</span>
+                  <span style="background-color: rgba(255, 255, 255, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #94a3b8;">XGBoost</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-8">
+            <div class="card">
+              <div class="card-title">Resultados de la Última Ejecución</div>
+              <div style="max-height: 300px; overflow-y: auto;">
+                <table class="strategy-table">
+                  <thead>
+                    <tr>
+                      <th>Modelo</th>
+                      <th>Tipo</th>
+                      <th>Señal/Pred</th>
+                      <th>Accuracy/RMSE</th>
+                      <th>F1/R²</th>
+                      <th>Tiempo(s)</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="background-color: rgba(38, 166, 154, 0.1);">
+                      <td>SVM</td>
+                      <td>Clasificador</td>
+                      <td>BUY</td>
+                      <td>83.5%</td>
+                      <td>0.82</td>
+                      <td>0.45</td>
+                      <td><span style="background-color: rgba(38, 166, 154, 0.2); color: #26A69A; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">✓ OK</span></td>
+                    </tr>
+                    <tr style="background-color: rgba(38, 166, 154, 0.1);">
+                      <td>LSTM Clf</td>
+                      <td>Clasificador</td>
+                      <td>BUY</td>
+                      <td>81.2%</td>
+                      <td>0.79</td>
+                      <td>2.34</td>
+                      <td><span style="background-color: rgba(38, 166, 154, 0.2); color: #26A69A; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">✓ OK</span></td>
+                    </tr>
+                    <tr style="background-color: rgba(38, 166, 154, 0.1);">
+                      <td>XGBoost</td>
+                      <td>Clasificador</td>
+                      <td>HOLD</td>
+                      <td>86.1%</td>
+                      <td>0.85</td>
+                      <td>0.89</td>
+                      <td><span style="background-color: rgba(38, 166, 154, 0.2); color: #26A69A; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">✓ OK</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- M11: BACKTESTING -->
+      <section id="module-m11">
+        <div class="module-header">
+          <h2>📋 Backtesting de Portafolio Diversificado</h2>
+          <p id="m11-periodo">Simulación día a día sobre datos reales · Comisión: 0.10% · Slippage: 0.05%</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="controls-row">
+            <div class="control-group">
+              <label>Modelo de Señales</label>
+              <select id="m11-model" onchange="renderM11()">
+                <option value="SVC">SVC</option>
+                <option value="LSTM" selected>LSTM</option>
+                <option value="BiLSTM">BiLSTM</option>
+                <option value="GRU">GRU</option>
+                <option value="SimpleRNN">SimpleRNN</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Perfil de Riesgo</label>
+              <select id="m11-risk" onchange="renderM11()">
+                <option value="conservador">Conservador</option>
+                <option value="moderado" selected>Moderado</option>
+                <option value="agresivo">Agresivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-bottom: 20px;">
+          <div class="col-2">
+            <div class="card">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Total Return</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f8fafc;" id="m11-card-total-return">—</div>
+              <div style="font-size: 12px; margin-top: 4px; color: #94a3b8;" id="m11-card-total-return-label">&nbsp;</div>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="card">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Sharpe Ratio</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f8fafc;" id="m11-card-sharpe">—</div>
+              <div style="font-size: 12px; margin-top: 4px; color: #94a3b8;" id="m11-card-sharpe-label">&nbsp;</div>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="card">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Max Drawdown</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f8fafc;" id="m11-card-maxdd">—</div>
+              <div style="font-size: 12px; margin-top: 4px; color: #EF5350;">Riesgo</div>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="card">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Win Rate</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f8fafc;" id="m11-card-winrate">—</div>
+              <div style="font-size: 12px; margin-top: 4px; color: #94a3b8;" id="m11-card-winrate-label">&nbsp;</div>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="card">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Profit Factor</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f8fafc;" id="m11-card-pf">—</div>
+              <div style="font-size: 12px; margin-top: 4px; color: #94a3b8;" id="m11-card-pf-label">&nbsp;</div>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="card">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Total Trades</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f8fafc;" id="m11-card-trades">—</div>
+              <div style="font-size: 12px; margin-top: 4px; color: #94a3b8;">Operaciones</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12">
+          <div class="col-8">
+            <div class="card">
+              <div class="card-title">Curva de Equity</div>
+              <div style="height: 350px;">
+                <canvas id="m11-equity-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <div class="card-title">Métricas Detalladas</div>
+              <table class="params-table" style="font-size: 11px;" id="m11-metrics-table">
+                <tr><td>Total Return</td><td>—</td></tr>
+                <tr><td>Ann. Return</td><td>—</td></tr>
+                <tr><td>Sharpe Ratio</td><td>—</td></tr>
+                <tr><td>Sortino Ratio</td><td>—</td></tr>
+                <tr><td>Max Drawdown</td><td>—</td></tr>
+                <tr><td>Win Rate</td><td>—</td></tr>
+                <tr><td>Profit Factor</td><td>—</td></tr>
+                <tr><td>Total Trades</td><td>—</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-12" style="margin-top: 20px;">
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Histograma de Retornos por Trade</div>
+              <div style="height: 250px;">
+                <canvas id="m11-returns-histogram"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-title">Últimos 20 Trades</div>
+              <div style="max-height: 300px; overflow-y: auto;">
+                <table class="strategy-table" style="font-size: 11px;">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Entrada</th>
+                      <th>Salida</th>
+                      <th>Activo</th>
+                      <th>Retorno</th>
+                      <th>Duración</th>
+                    </tr>
+                  </thead>
+                  <tbody id="m11-trades-table">
+                    <tr><td colspan="6" style="text-align:center; color:#94a3b8;">Cargando trades…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <button class="btn btn-primary" onclick="exportCSV()" style="width: 100%; margin-top: 12px; padding: 8px 16px;">
+                Exportar CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN DE ORDEN -->
+  <div id="order-confirmation-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">Confirmar Orden</div>
+      <div class="modal-body">
+        <table class="strategy-table">
+          <tr><td>Ticker</td><td id="modal-ticker">AAPL</td></tr>
+          <tr><td>Dirección</td><td id="modal-direction">BUY</td></tr>
+          <tr><td>Tipo</td><td id="modal-type">Market</td></tr>
+          <tr><td>Cantidad</td><td id="modal-qty">10</td></tr>
+          <tr><td>Precio Est.</td><td id="modal-price">$189.23</td></tr>
+          <tr><td>Total con Comisión</td><td id="modal-total">$1,894.19</td></tr>
+        </table>
+        <div style="margin-top: 16px;">
+          <label>
+            <input type="checkbox" id="confirm-checkbox" onchange="updateConfirmBtn()"> Confirmo que he revisado los detalles de esta orden
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-confirm" id="confirm-btn" onclick="submitOrder()" disabled>CONFIRMAR Y ENVIAR</button>
+        <button class="btn-cancel" onclick="closeOrderConfirmation()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== CONFIGURACIÓN GLOBAL ==========
+    // ═══════════════════════════════════════════════════════
+    // CONEXIÓN CON FASTAPI — Ernesto Investing AI
+    // Cambia API_URL por la URL que te da ngrok al arrancar el servidor
+    // Ejemplo: "https://abc123.ngrok-free.app"
+    // Para desarrollo local usa: "http://localhost:8000"
+    // ═══════════════════════════════════════════════════════
+    const API_URL = "https://obsolete-uncouple-elves.ngrok-free.dev";  // ← actualiza con tu URL ngrok
+
+    // Cache de datos para evitar llamadas repetidas a la API
+    const apiCache = {};
+
+    /**
+     * Fetches datos del endpoint indicado con cache en memoria.
+     * @param {string} url - URL completa del endpoint
+     * @returns {Promise<object|null>} - datos JSON o null si hay error
+     */
+
+    async function apiFetch(url, forceRefresh = false) {
+                if (!forceRefresh && apiCache[url]) return apiCache[url];
+                try {
+                      const resp = await fetch(url, {
+                            headers: { 'ngrok-skip-browser-warning': '1' }
+                      });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        apiCache[url] = data;
+        return data;
+      } catch (err) {
+        // Un TypeError de "Failed to fetch" casi siempre significa que
+        // API_URL ya no apunta al túnel ngrok activo (las URLs gratuitas
+        // de ngrok cambian cada vez que reinicias el notebook/Colab).
+        if (err instanceof TypeError) {
+          console.error(
+            `[API Error] No se pudo conectar a ${url}.\n` +
+            `→ Verifica que el backend (uvicorn) siga corriendo y que la URL de ngrok no haya cambiado.\n` +
+            `→ Actualiza la constante API_URL al inicio del <script> con la URL nueva que imprime ngrok.connect(8000).`
+          );
+        } else {
+          console.error(`[API Error] ${url}:`, err);
+        }
+        return null;
+      }
+    }
+
+    // ─── MÓDULO MSVC: CLASIFICADOR SVC ─────────────────────────────
+    // Cache local de datos SVC por ticker (independiente del apiFetch global)
+    // para poder redibujar el gráfico al cambiar el período SIN hacer
+    // un nuevo request a la API.
+    const msvcCache = {};
+
+    async function renderMSVC(forceRefresh = false) {
+      const ticker = document.getElementById('msvc-ticker').value;
+      const dias   = parseInt(document.getElementById('msvc-period').value);
+
+      // Estado de carga solo si no tenemos datos en cache
+      if (!msvcCache[ticker] || forceRefresh) {
+        ['msvc-accuracy','msvc-f1','msvc-precision','msvc-recall'].forEach(id => {
+          document.getElementById(id).textContent = '…';
+        });
+      }
+
+      // Llamada a la API (con cache)
+      let datos = msvcCache[ticker];
+      if (!datos || forceRefresh) {
+        datos = await apiFetch(`${API_URL}/api/svc/${ticker}`, forceRefresh);
+        if (datos) msvcCache[ticker] = datos;
+      }
+
+      if (!datos) {
+        ['msvc-accuracy','msvc-f1','msvc-precision','msvc-recall'].forEach(id => {
+          document.getElementById(id).textContent = 'Sin API';
+        });
+        console.warn('[MSVC] No se pudo conectar con /api/svc/. ¿Está corriendo el servidor?');
+        return;
+      }
+
+      // La API real (/api/svc/{ticker}) devuelve estructura PLANA:
+      // { ticker, modelo, fecha_prediccion, tipo_features,
+      //   prediccion: { senal, confianza },
+      //   metricas: { accuracy, precision, recall, f1, matriz_confusion,
+      //               mejor_kernel, mejor_C, mejor_gamma },
+      //   historico_senales: [...] }
+      // Sin wrapper 'resultados' ni 'metadata' — se leen los campos directo.
+      const m = datos.metricas || {};
+      if (!datos.prediccion) { console.warn('[MSVC] Estructura de respuesta inesperada', datos); return; }
+
+      // ── Métricas ──────────────────────────────────────────────────
+      document.getElementById('msvc-accuracy').textContent  = (m.accuracy  * 100).toFixed(1) + '%';
+      document.getElementById('msvc-f1').textContent        = m.f1.toFixed(3);
+      document.getElementById('msvc-precision').textContent = m.precision.toFixed(3);
+      document.getElementById('msvc-recall').textContent    = m.recall.toFixed(3);
+
+      // ── Empresa ───────────────────────────────────────────────────
+      // La API no devuelve 'company_name' (Notebook 1 no lo guarda);
+      // mostramos el ticker y el tipo de features usado (precio o volumen)
+      const companyEl = document.getElementById('msvc-company');
+      if (companyEl) companyEl.textContent = `${ticker} (features: ${datos.tipo_features || 'precio'})`;
+
+      // ── Fecha ─────────────────────────────────────────────────────
+      const fechaEl = document.getElementById('msvc-fecha');
+      if (fechaEl && datos.fecha_prediccion) {
+        fechaEl.textContent = 'Actualizado: ' + datos.fecha_prediccion;
+      }
+
+      // ── Semáforo ──────────────────────────────────────────────────
+      const senal = datos.prediccion.senal || 'HOLD';
+      ['buy','hold','sell'].forEach(s =>
+        document.getElementById(`msvc-light-${s}`).classList.remove('active')
+      );
+      if      (senal === 'BUY')  document.getElementById('msvc-light-buy').classList.add('active');
+      else if (senal === 'SELL') document.getElementById('msvc-light-sell').classList.add('active');
+      else                       document.getElementById('msvc-light-hold').classList.add('active');
+
+      // ── Hiperparámetros ───────────────────────────────────────────
+      document.getElementById('msvc-param-kernel').textContent = m.mejor_kernel !== undefined ? m.mejor_kernel : '—';
+      document.getElementById('msvc-param-c').textContent      = m.mejor_C      !== undefined ? m.mejor_C      : '—';
+      document.getElementById('msvc-param-gamma').textContent  = m.mejor_gamma  !== undefined ? m.mejor_gamma  : '—';
+      // La API no expone cv_folds/test_size por separado (son parámetros fijos
+      // de GridSearchCV en el Notebook 2: cv=5, split temporal 80/20)
+      document.getElementById('msvc-param-cv').textContent     = '5 (fijo)';
+      document.getElementById('msvc-param-test').textContent   = '20% (fijo)';
+
+      // ── Gráfico: precio + señales BUY/SELL ───────────────────────
+      const hist = (datos.historico_senales || []).slice(-dias);
+      if (hist.length > 0) {
+        const fechas  = hist.map(d => d.fecha);
+        const precios = hist.map(d => d.precio);
+        const buyIdx  = hist.map((d, i) => d.prediccion === 'BUY'  ? i : -1).filter(i => i >= 0);
+        const sellIdx = hist.map((d, i) => d.prediccion === 'SELL' ? i : -1).filter(i => i >= 0);
+
+        // purge garantiza que Plotly redibuje desde cero aunque el
+        // contenedor haya estado oculto o el período haya cambiado
+        Plotly.purge('msvc-chart');
+        Plotly.newPlot('msvc-chart', [
+          {
+            x: fechas, y: precios, type: 'scatter', mode: 'lines',
+            name: 'Precio', line: { color: '#42A5F5', width: 2 },
+            hovertemplate: '<b>%{x}</b><br>Precio: $%{y:.2f}<extra></extra>'
+          },
+          {
+            x: buyIdx.map(i => fechas[i]), y: buyIdx.map(i => precios[i]),
+            type: 'scatter', mode: 'markers', name: 'BUY',
+            marker: { symbol: 'triangle-up', size: 11, color: '#26A69A' },
+            hovertemplate: '<b>BUY</b><br>%{x}<br>$%{y:.2f}<extra></extra>'
+          },
+          {
+            x: sellIdx.map(i => fechas[i]), y: sellIdx.map(i => precios[i]),
+            type: 'scatter', mode: 'markers', name: 'SELL',
+            marker: { symbol: 'triangle-down', size: 11, color: '#EF5350' },
+            hovertemplate: '<b>SELL</b><br>%{x}<br>$%{y:.2f}<extra></extra>'
+          }
+        ], {
+          title: `${ticker} — Señales SVC (últimos ${dias} días)`,
+          paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+          font: { color: '#f8fafc' },
+          xaxis: { title: 'Fecha', gridcolor: '#1e293b' },
+          yaxis: { title: 'Precio (USD)', gridcolor: '#1e293b' },
+          hovermode: 'x unified',
+          legend: { orientation: 'h', y: 1.1 },
+          margin: { l: 60, r: 30, t: 50, b: 40 }
+        }, { responsive: true });
+      }
+
+      // ── Matriz de confusión 2×2 ───────────────────────────────────
+      const cm = m.matriz_confusion;
+      if (cm && cm.length === 2) {
+        Plotly.react('msvc-confusion', [{
+          z: cm,
+          x: ['Pred SELL', 'Pred BUY'],
+          y: ['Real SELL', 'Real BUY'],
+          type: 'heatmap',
+          colorscale: [[0,'#1e293b'],[0.5,'#1d4ed8'],[1,'#38bdf8']],
+          text: cm, texttemplate: '%{text}',
+          textfont: { size: 22, color: 'white' },
+          hovertemplate: 'Real: %{y}<br>Pred: %{x}<br>N: %{z}<extra></extra>'
+        }], {
+          paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+          font: { color: '#f8fafc' },
+          xaxis: { title: 'Predicho' }, yaxis: { title: 'Real' },
+          margin: { l: 90, r: 20, t: 20, b: 50 }
+        }, { responsive: true });
+      }
+
+      // ── Barras: Accuracy / F1 ─────────────────────────────────────
+      const accVal = +(m.accuracy  * 100).toFixed(2);
+      const f1Val  = +(m.f1        * 100).toFixed(2);
+      const prVal  = +(m.precision * 100).toFixed(2);
+      const reVal  = +(m.recall    * 100).toFixed(2);
+
+      Plotly.react('msvc-metrics-chart', [{
+        x: ['Accuracy', 'F1-Score', 'Precision', 'Recall'],
+        y: [accVal, f1Val, prVal, reVal],
+        type: 'bar',
+        marker: { color: ['#2563eb','#38bdf8','#7c3aed','#0891b2'] },
+        text: [accVal+'%', f1Val+'%', prVal+'%', reVal+'%'],
+        textposition: 'outside',
+        hovertemplate: '%{x}: %{y:.2f}%<extra></extra>'
+      }], {
+        paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+        font: { color: '#f8fafc' },
+        yaxis: { title: '%', range: [0, 115], gridcolor: '#1e293b' },
+        xaxis: { gridcolor: '#1e293b' },
+        showlegend: false,
+        margin: { l: 50, r: 20, t: 20, b: 50 }
+      }, { responsive: true });
+    }
+
+    // ─── MÓDULO M3: CLASIFICADORES RNN (LSTM · BiLSTM · GRU · SimpleRNN) ──
+    // Conectado a /api/rnns/{ticker}?modelo=X (Notebooks 3/4/5/6), que lee
+    // predicciones/metricas_modelos filtrando por el campo 'modelo' elegido
+    // en el selector de arquitectura del frontend.
+    async function renderM3(forceRefresh = false) {
+      const ticker = document.getElementById('m3-ticker').value;
+      const dias   = document.getElementById('m3-period') ? parseInt(document.getElementById('m3-period').value) : 180;
+      const arch   = document.getElementById('m3-arch')   ? document.getElementById('m3-arch').value : 'LSTM';
+
+      // Mostrar estado de carga
+      document.getElementById('m3-accuracy').textContent  = '…';
+      document.getElementById('m3-f1').textContent        = '…';
+      document.getElementById('m3-precision').textContent = '…';
+      document.getElementById('m3-recall').textContent    = '…';
+
+      const datos = await apiFetch(`${API_URL}/api/rnns/${ticker}?modelo=${arch}`, forceRefresh);
+
+      if (!datos) {
+        document.getElementById('m3-accuracy').textContent = 'Sin conexión';
+        document.getElementById('m3-f1').textContent        = '—';
+        document.getElementById('m3-precision').textContent = '—';
+        document.getElementById('m3-recall').textContent    = '—';
+        console.warn(`No se pudo conectar con la API para el modelo ${arch}. Revisa que el servidor FastAPI esté corriendo, que API_URL tenga la URL de ngrok vigente, y que el Notebook ${arch} ya haya guardado resultados para ${ticker}.`);
+        return;
+      }
+
+      // La API real (/api/rnns/{ticker}?modelo=X) devuelve estructura PLANA,
+      // igual que /api/svc/{ticker}:
+      // { ticker, modelo, fecha_prediccion, n_steps,
+      //   prediccion: { senal, confianza },
+      //   metricas: { accuracy, precision, recall, f1, epocas_entrenadas,
+      //               matriz_confusion, historial_epocas },
+      //   historico_senales: [...] }
+      const m = datos.metricas || {};
+      const archLabel = document.getElementById('m3-arch-label');
+      if (archLabel) archLabel.textContent = datos.modelo || arch;
+
+      if (!datos.prediccion) {
+        document.getElementById('m3-accuracy').textContent = 'Sin datos';
+        console.warn(`[M3] La respuesta de la API no tiene 'prediccion'. Revisa que el Notebook ${arch} haya procesado el ticker ${ticker}.`);
+        return;
+      }
+
+      // ── Actualizar métricas ──────────────────────────────────────
+      document.getElementById('m3-accuracy').textContent  = (m.accuracy  * 100).toFixed(1) + '%';
+      document.getElementById('m3-f1').textContent        = m.f1.toFixed(3);
+      document.getElementById('m3-precision').textContent = m.precision.toFixed(3);
+      document.getElementById('m3-recall').textContent    = m.recall.toFixed(3);
+
+      // ── Semáforo de señal actual ─────────────────────────────────
+      const senal = datos.prediccion.senal || 'HOLD';
+      ['buy','hold','sell'].forEach(s =>
+        document.getElementById(`m3-light-${s}`).classList.remove('active')
+      );
+      if (senal === 'BUY')  document.getElementById('m3-light-buy').classList.add('active');
+      if (senal === 'SELL') document.getElementById('m3-light-sell').classList.add('active');
+
+      // ── Fecha de actualización ───────────────────────────────────
+      const fechaEl = document.getElementById('m3-fecha-act');
+      if (fechaEl && datos.fecha_prediccion) {
+        fechaEl.textContent = 'Actualizado: ' + datos.fecha_prediccion;
+      }
+
+      // ── Matriz de confusión 2×2 ──────────────────────────────────
+      const cm = m.matriz_confusion;
+      if (cm && cm.length === 2) {
+        const cmTrace = {
+          z: cm,
+          x: ['Pred SELL', 'Pred BUY'],
+          y: ['Real SELL', 'Real BUY'],
+          type: 'heatmap',
+          colorscale: [[0,'#1e293b'],[1,'#2563eb']],
+          text: cm,
+          texttemplate: '%{text}',
+          textfont: { size: 20, color: 'white' },
+          hovertemplate: 'Real: %{y}<br>Pred: %{x}<br>N: %{z}<extra></extra>'
+        };
+        Plotly.react('m3-confusion-matrix', [cmTrace], {
+          title: `Matriz de Confusión — ${arch} · ${ticker}`,
+          paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+          font: { color: '#f8fafc' },
+          xaxis: { title: 'Predicho' }, yaxis: { title: 'Real' },
+          height: 260,
+          margin: { l: 90, r: 20, t: 45, b: 50 }
+        }, { responsive: true });
+      }
+
+      // ── Gráfico: loss/accuracy por época (reemplaza la comparativa
+      //    de arquitecturas, que no aplica porque solo hay LSTM) ─────
+      const hist = m.historial_epocas;
+      if (hist && hist.loss && hist.loss.length > 0) {
+        const epocas = Array.from({length: hist.loss.length}, (_, i) => i + 1);
+        const traceLoss = {
+          x: epocas, y: hist.loss, name: 'Loss (train)', type: 'scatter', mode: 'lines',
+          line: { color: '#EF5350', width: 2 }
+        };
+        const traceAcc = {
+          x: epocas, y: hist.accuracy, name: 'Accuracy (train)', type: 'scatter', mode: 'lines',
+          line: { color: '#26A69A', width: 2 }, yaxis: 'y2'
+        };
+        const traces = [traceLoss, traceAcc];
+        if (hist.val_loss && hist.val_loss.length > 0) {
+          traces.push({
+            x: epocas, y: hist.val_loss, name: 'Loss (val)', type: 'scatter', mode: 'lines',
+            line: { color: '#EF5350', width: 1, dash: 'dot' }
+          });
+        }
+        if (hist.val_accuracy && hist.val_accuracy.length > 0) {
+          traces.push({
+            x: epocas, y: hist.val_accuracy, name: 'Accuracy (val)', type: 'scatter', mode: 'lines',
+            line: { color: '#26A69A', width: 1, dash: 'dot' }, yaxis: 'y2'
+          });
+        }
+        Plotly.react('m3-class-distribution', traces, {
+          title: `Historial de Entrenamiento — ${arch} (${hist.loss.length} épocas)`,
+          paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+          font: { color: '#f8fafc' },
+          xaxis: { title: 'Época' },
+          yaxis: { title: 'Loss', side: 'left' },
+          yaxis2: { title: 'Accuracy', side: 'right', overlaying: 'y', range: [0,1] },
+          legend: { orientation: 'h', y: -0.25 },
+          height: 260,
+          margin: { l: 55, r: 55, t: 45, b: 70 }
+        }, { responsive: true });
+      }
+
+      // ── Gráfico de precios + señales BUY/SELL del LSTM ────────────
+      const histSenales = (datos.historico_senales || []).slice(-dias);
+      if (histSenales.length > 0) {
+        const fechas  = histSenales.map(d => d.fecha);
+        const precios = histSenales.map(d => d.precio);
+        const buyIdx  = histSenales.map((d, i) => d.prediccion === 'BUY'  ? i : -1).filter(i => i >= 0);
+        const sellIdx = histSenales.map((d, i) => d.prediccion === 'SELL' ? i : -1).filter(i => i >= 0);
+
+        Plotly.purge('m3-chart');
+        Plotly.newPlot('m3-chart', [
+          {
+            x: fechas, y: precios, type: 'scatter', mode: 'lines',
+            name: 'Precio', line: { color: '#42A5F5', width: 2 },
+            hovertemplate: '<b>%{x}</b><br>Precio: $%{y:.2f}<extra></extra>'
+          },
+          {
+            x: buyIdx.map(i => fechas[i]), y: buyIdx.map(i => precios[i]),
+            type: 'scatter', mode: 'markers', name: 'BUY',
+            marker: { symbol: 'triangle-up', size: 11, color: '#26A69A' },
+            hovertemplate: '<b>BUY</b><br>%{x}<br>$%{y:.2f}<extra></extra>'
+          },
+          {
+            x: sellIdx.map(i => fechas[i]), y: sellIdx.map(i => precios[i]),
+            type: 'scatter', mode: 'markers', name: 'SELL',
+            marker: { symbol: 'triangle-down', size: 11, color: '#EF5350' },
+            hovertemplate: '<b>SELL</b><br>%{x}<br>$%{y:.2f}<extra></extra>'
+          }
+        ], {
+          title: `${ticker} — Señales ${arch} (últimos ${histSenales.length} días)`,
+          paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+          font: { color: '#f8fafc' },
+          xaxis: { title: 'Fecha', gridcolor: '#1e293b' },
+          yaxis: { title: 'Precio (USD)', gridcolor: '#1e293b' },
+          hovermode: 'x unified',
+          legend: { orientation: 'h', y: 1.1 },
+          margin: { l: 60, r: 30, t: 50, b: 40 }
+        }, { responsive: true });
+      } else {
+        console.warn('[M3] La respuesta de /api/rnns no trae historico_senales; no se puede dibujar m3-chart.');
+        document.getElementById('m3-chart').innerHTML =
+          '<p style="color:#94a3b8;text-align:center;padding:40px 0;">Sin datos de señales históricas para este ticker.</p>';
+      }
+    }
+
+    // ─── MÓDULO M4: REGRESOR LSTM ───────────────────────────────────
+    // Conectado a /api/lstm/{ticker} (Notebook 7: Regresor LSTM de Precios,
+    // modelo='LSTM_REG'). Devuelve precio actual, histórico real vs. predicho,
+    // y proyección a futuro (7/14/30/60 días) con bandas de confianza (±1.96·RMSE).
+    async function renderM4() {
+      const ticker = document.getElementById('m4-ticker').value;
+      const valor  = parseInt(document.getElementById('m4-slider').value);
+      const dias   = [7, 14, 30, 60][valor];
+      document.getElementById('m4-days-value').textContent = dias;
+
+      // Mostrar estado de carga
+      ['m4-rmse-usd','m4-rmse-pct','m4-mae','m4-r2','m4-precio-actual','m4-epocas'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '…';
+      });
+
+      const datos = await apiFetch(`${API_URL}/api/lstm/${ticker}?horizonte=120`);
+
+      if (!datos) {
+        ['m4-rmse-usd','m4-rmse-pct','m4-mae','m4-r2','m4-precio-actual','m4-epocas'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = 'Error API';
+        });
+        console.warn(`No se pudo conectar con la API para ${ticker}. ¿Está corriendo el servidor FastAPI y el Notebook 7 (Regresor LSTM) ya procesó este ticker?`);
+        return;
+      }
+
+      // ── Actualizar métricas en el panel derecho ───────────────────
+      // fmtUSD/fmtPct/fmtNum son defensivos: si el campo viene null/undefined
+      // desde la API (por ejemplo un ticker sin ARIMA baseline calculado, o
+      // sin métricas guardadas), muestran 'N/D' en vez de lanzar una excepción
+      // que detendría el resto del render (incluyendo el gráfico).
+      const m  = datos.metricas || {};
+      const setEl  = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      const fmtUSD = v => (v === null || v === undefined || isNaN(v)) ? 'N/D' : '$' + Number(v).toFixed(4);
+      const fmtPct = v => (v === null || v === undefined || isNaN(v)) ? 'N/D' : Number(v).toFixed(2) + '%';
+      const fmtNum = v => (v === null || v === undefined || isNaN(v)) ? 'N/D' : Number(v).toFixed(4);
+
+      setEl('m4-rmse-usd',      fmtUSD(m.rmse_usd));
+      setEl('m4-rmse-pct',      fmtPct(m.rmse_pct));
+      setEl('m4-mae',           fmtUSD(m.mae_usd));
+      setEl('m4-r2',            fmtNum(m.r2));
+      setEl('m4-precio-actual', fmtUSD(datos.precio_actual_usd));
+      setEl('m4-epocas',        (m.epocas_entrenadas !== undefined && m.epocas_entrenadas !== null) ? m.epocas_entrenadas : 'N/D');
+      setEl('m4-fecha',         datos.fecha_prediccion ? ('Actualizado: ' + datos.fecha_prediccion) : '—');
+
+      // ── Datos históricos reales vs predichos ──────────────────────
+      const hist = datos.historico_precios || [];
+      const fechasHist   = hist.map(d => d.fecha);
+      const preciosReal  = hist.map(d => d.precio_real);
+      const preciosPred  = hist.map(d => d.precio_predicho);
+
+      // ── Predicción futura para el horizonte seleccionado ──────────
+      const hKey    = `${dias}_dias`;
+      const pfutura = (datos.prediccion_futura || {})[hKey];
+
+      // Generar fechas futuras a partir del último punto del histórico
+      const ultimaFecha = hist.length > 0 ? new Date(hist[hist.length - 1].fecha) : new Date();
+      const fechasFut = Array.from({ length: dias }, (_, i) => {
+        const d = new Date(ultimaFecha);
+        d.setDate(d.getDate() + i + 1);
+        return d.toISOString().slice(0, 10);
+      });
+
+      // Interpolar entre precio actual y predicción final
+      const precioInicio = pfutura ? datos.precio_actual_usd : null;
+      const precioFin    = pfutura ? pfutura.precio          : null;
+      const bandaSup     = pfutura ? pfutura.banda_sup       : null;
+      const bandaInf     = pfutura ? pfutura.banda_inf       : null;
+      const interpolar   = (a, b, n) => Array.from({ length: n }, (_, i) => a + (b - a) * (i / (n - 1)));
+      const lineaFut     = precioFin ? interpolar(precioInicio, precioFin,    dias) : [];
+      const lineaSup     = bandaSup  ? interpolar(precioInicio, bandaSup,     dias) : [];
+      const lineaInf     = bandaInf  ? interpolar(precioInicio, bandaInf,     dias) : [];
+
+      const hoyFecha = ultimaFecha.toISOString().slice(0, 10);
+
+      const traces = [
+        {
+          x: fechasHist, y: preciosReal,
+          type: 'scatter', mode: 'lines', name: 'Precio Real',
+          line: { color: '#1976D2', width: 2 }
+        },
+        {
+          x: fechasHist, y: preciosPred,
+          type: 'scatter', mode: 'lines', name: 'Predicción (test)',
+          line: { color: '#FF9800', width: 1.5, dash: 'dot' }
+        }
+      ];
+
+      if (lineaFut.length > 0) {
+        traces.push({
+          x: fechasFut, y: lineaSup,
+          type: 'scatter', mode: 'lines', name: 'Banda superior',
+          line: { color: 'rgba(239,83,80,0)', width: 0 }, showlegend: false
+        });
+        traces.push({
+          x: fechasFut, y: lineaInf,
+          type: 'scatter', mode: 'lines', name: 'Intervalo confianza',
+          fill: 'tonexty', fillcolor: 'rgba(239,83,80,0.15)',
+          line: { color: 'rgba(239,83,80,0)', width: 0 }
+        });
+        traces.push({
+          x: fechasFut, y: lineaFut,
+          type: 'scatter', mode: 'lines', name: `Predicción LSTM (${dias}d)`,
+          line: { color: '#EF5350', width: 2.5, dash: 'dash' }
+        });
+      }
+
+      Plotly.react('m4-chart', traces, {
+        title: { text: `${ticker} — Pronóstico LSTM (${dias} días)`, font: { size: 18 } },
+        xaxis: { title: 'Fecha' },
+        yaxis: { title: 'Precio (USD)' },
+        hovermode: 'x unified',
+        paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+        font: { color: '#f8fafc' },
+        margin: { l: 60, r: 60, t: 80, b: 60 },
+        legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center' },
+        shapes: [{
+          type: 'line', x0: hoyFecha, x1: hoyFecha, y0: 0, y1: 1, yref: 'paper',
+          line: { color: '#9E9E9E', width: 1, dash: 'dot' }
+        }],
+        annotations: [{
+          x: hoyFecha, y: 1.05, yref: 'paper', text: 'Hoy',
+          showarrow: false, bgcolor: '#9E9E9E', font: { color: 'white' }
+        }]
+      }, { responsive: true, autosize: true }).then(() => {
+        setTimeout(() => Plotly.Plots.resize('m4-chart'), 200);
+      });
+    }
+
+        const CONFIG = {
+      colors: {
+        buy: '#26A69A',
+        sell: '#EF5350',
+        hold: '#FFC107',
+        primary: '#2563eb',
+        background: '#0f172a',
+        card: '#1e293b',
+        text: '#f8fafc',
+        textSecondary: '#94a3b8'
+      },
+      tickers: {
+        acciones: ['FSM', 'VOLCABC1.LM', 'ABX.TO', 'BVN', 'BHP'],
+        cripto: ['FSM', 'VOLCABC1.LM', 'ABX.TO', 'BVN', 'BHP']
+      },
+      prices: {
+        'FSM': 10.5,
+        'VOLCABC1.LM': 0.24,
+        'ABX.TO': 22.5,
+        'BVN': 8.3,
+        'BHP': 45.2,
+        'SOL-USD': 142.30
+      }
+    };
+
+    let tickerActual = 'FSM';
+    let moduloActivo = 'm2';
+    let chartsInstances = {};
+
+    // ========== FUNCIONES DE UTILIDAD ==========
+    function generarOHLCV(ticker, dias) {
+      const data = [];
+      const precioBase = CONFIG.prices[ticker] || 100;
+      let precio = precioBase;
+      
+      for (let i = dias; i >= 0; i--) {
+        const fecha = new Date();
+        fecha.setDate(fecha.getDate() - i);
+        
+        const variacion = (Math.random() - 0.5) * 0.04;
+        precio = precio * (1 + variacion);
+        
+        const open = precio;
+        const close = precio * (1 + (Math.random() - 0.5) * 0.02);
+        const high = Math.max(open, close) * (1 + Math.random() * 0.01);
+        const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+        const volume = Math.floor(Math.random() * 25000000 + 5000000);
+        
+        data.push({
+          fecha: fecha.toISOString().split('T')[0],
+          open: parseFloat(open.toFixed(2)),
+          high: parseFloat(high.toFixed(2)),
+          low: parseFloat(low.toFixed(2)),
+          close: parseFloat(close.toFixed(2)),
+          volume: volume
+        });
+        
+        precio = close;
+      }
+      
+      return data;
+    }
+
+    function generarClasificaciones(n) {
+      const clases = [];
+      for (let i = 0; i < n; i++) {
+        const rand = Math.random();
+        if (rand < 0.56) clases.push('HOLD');
+        else if (rand < 0.78) clases.push('BUY');
+        else clases.push('SELL');
+      }
+      return clases;
+    }
+
+    function generarNoticias() {
+      const titulos = [
+        'Apple supera expectativas de ganancias Q4',
+        'Microsoft anuncia nueva estrategia de IA',
+        'Google invierte $10B en infraestructura',
+        'Tesla aumenta producción en 30%',
+        'NVIDIA lanza nueva GPU de última generación',
+        'Bitcoin alcanza nuevo máximo histórico',
+        'Ethereum actualiza protocolo con éxito',
+        'Mercado de criptos se recupera después de caída',
+        'Análisis: Tendencia alcista continúa',
+        'Expertos predicen volatilidad en próximas semanas'
+      ];
+      
+      const sentimientos = ['BULLISH', 'BEARISH', 'NEUTRAL'];
+      const fuentes = ['Bloomberg', 'CNBC', 'Reuters', 'MarketWatch'];
+      
+      const noticias = [];
+      for (let i = 0; i < 15; i++) {
+        noticias.push({
+          titulo: titulos[Math.floor(Math.random() * titulos.length)],
+          texto: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+          sentimiento: sentimientos[Math.floor(Math.random() * sentimientos.length)],
+          fuente: fuentes[Math.floor(Math.random() * fuentes.length)],
+          hora: `hace ${Math.floor(Math.random() * 120) + 1} min`
+        });
+      }
+      
+      return noticias;
+    }
+
+    function calcularSMA(data, periodo) {
+      const sma = [];
+      for (let i = 0; i < data.length; i++) {
+        if (i < periodo - 1) {
+          sma.push(null);
+        } else {
+          const suma = data.slice(i - periodo + 1, i + 1).reduce((a, b) => a + b, 0);
+          sma.push(suma / periodo);
+        }
+      }
+      return sma;
+    }
+
+    function calcularEMA(data, periodo) {
+      const ema = [];
+      const multiplicador = 2 / (periodo + 1);
+      
+      for (let i = 0; i < data.length; i++) {
+        if (i === 0) {
+          ema.push(data[i]);
+        } else {
+          ema.push(data[i] * multiplicador + ema[i - 1] * (1 - multiplicador));
+        }
+      }
+      
+      return ema;
+    }
+
+    function calcularBollinger(data, periodo = 20, std = 2) {
+      const sma = calcularSMA(data, periodo);
+      const bandas = { superior: [], media: sma, inferior: [] };
+      
+      for (let i = 0; i < data.length; i++) {
+        if (i < periodo - 1) {
+          bandas.superior.push(null);
+          bandas.inferior.push(null);
+        } else {
+          const valores = data.slice(i - periodo + 1, i + 1);
+          const media = sma[i];
+          const desv = Math.sqrt(valores.reduce((sum, val) => sum + Math.pow(val - media, 2), 0) / periodo);
+          bandas.superior.push(media + (desv * std));
+          bandas.inferior.push(media - (desv * std));
+        }
+      }
+      
+      return bandas;
+    }
+
+    // ========== AUTENTICACIÓN ==========
+    function handleLogin() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (!email || !password) {
+        alert('Por favor completa todos los campos');
+        return;
+      }
+      
+      if (email === 'demo@investai.com' && password === 'demo123') {
+        document.getElementById('screen-login').classList.add('hidden');
+        document.getElementById('app-main').classList.remove('hidden');
+        init();
+      } else {
+        alert('Credenciales inválidas. Usa demo@investai.com / demo123');
+      }
+    }
+
+    function handleRegister() {
+      const fullname = document.getElementById('fullname').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const passwordConfirm = document.getElementById('reg-password-confirm').value;
+      const termsCheck = document.getElementById('terms-check').checked;
+      
+      if (!fullname || !email || !password || !passwordConfirm) {
+        alert('Por favor completa todos los campos');
+        return;
+      }
+      
+      if (password !== passwordConfirm) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+      
+      if (!termsCheck) {
+        alert('Debes aceptar los Términos y Condiciones');
+        return;
+      }
+      
+      alert('Registro exitoso. Ahora puedes iniciar sesión.');
+      toggleRegister();
+    }
+
+    function handleRecovery() {
+      const email = document.getElementById('recovery-email').value;
+      
+      if (!email) {
+        alert('Por favor ingresa tu correo electrónico');
+        return;
+      }
+      
+      alert('Se ha enviado un enlace de recuperación a ' + email);
+      toggleRecovery();
+    }
+
+    function handleLogout() {
+      document.getElementById('app-main').classList.add('hidden');
+      document.getElementById('screen-login').classList.remove('hidden');
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+    }
+
+    function toggleRegister() {
+      document.getElementById('login-form').classList.toggle('hidden');
+      document.getElementById('register-form').classList.toggle('hidden');
+    }
+
+    function toggleRecovery() {
+      document.getElementById('login-form').classList.toggle('hidden');
+      document.getElementById('recovery-form').classList.toggle('hidden');
+    }
+
+    // ========== NAVEGACIÓN ==========
+    function switchModule(moduloId, event) {
+      event.preventDefault();
+      
+      const moduloActualEl = document.getElementById(`module-${moduloActivo}`);
+      if (moduloActualEl) {
+        moduloActualEl.classList.remove('active');
+      }
+      
+      const nuevoModuloEl = document.getElementById(`module-${moduloId}`);
+      if (nuevoModuloEl) {
+        nuevoModuloEl.classList.add('active');
+      }
+      
+      document.querySelectorAll('.navbar-tabs .tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      moduloActivo = moduloId;
+      
+      if (moduloId === 'm2') renderM2();
+      else if (moduloId === 'msvc') renderMSVC();
+      else if (moduloId === 'm3') renderM3();
+      else if (moduloId === 'm4') renderM4();
+      else if (moduloId === 'm5') renderM5();
+      else if (moduloId === 'm6') renderM6();
+      else if (moduloId === 'm7') renderM7();
+      else if (moduloId === 'm8') renderM8();
+      else if (moduloId === 'm9') renderM9();
+      else if (moduloId === 'm10') renderM10();
+      else if (moduloId === 'm11') renderM11();
+      
+      // Forzar redimensionado de Plotly al cambiar de pestaña
+      const plotlyCharts = ['m2-chart', 'msvc-chart', 'm3-chart', 'm4-chart', 'm9-main-chart'];
+      plotlyCharts.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.classList.contains('js-plotly-plot')) {
+          Plotly.Plots.resize(el);
+        }
+      });
+    }
+
+    function onTickerChange(ticker) {
+      // Este selector vive dentro del módulo Mercado (M2), así que solo
+      // afecta a M2 y a M9 (Dashboard), que muestra tickerActual como
+      // referencia. Los módulos SVC/RNN/LSTM tienen su PROPIO selector de
+      // ticker independiente (m3-ticker, m4-ticker, etc.), porque cada uno
+      // puede estar analizando un ticker distinto al que se ve en Mercado.
+      tickerActual = ticker;
+
+      if (moduloActivo === 'm2') renderM2();
+      else if (moduloActivo === 'm9') renderM9();
+    }
+
+    // ========== M2: DASHBOARD DE MERCADO ==========
+    function switchMarketTab(tab, event) {
+      event.preventDefault();
+      const tickers = tab === 'acciones' ? CONFIG.tickers.acciones : CONFIG.tickers.cripto;
+      const selectTicker = document.getElementById('m2-ticker');
+      selectTicker.innerHTML = tickers.map(t => `<option value="${t}">${t}</option>`).join('');
+      selectTicker.value = tickers[0];
+      tickerActual = tickers[0];
+      
+      document.querySelectorAll('.tab-selector .tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      renderM2();
+    }
+
+    async function renderM2() {
+      const chartEl = document.getElementById('m2-chart');
+      if (!chartEl) return;
+
+      const dias = parseInt(document.getElementById('m2-period').value);
+
+      // ── Llamada a la API real ──────────────────────────────
+      // Endpoint real del Notebook API: /api/mercado/{ticker}
+      // (lee de la colección precios_ohlcv, poblada por el Notebook de Ingesta)
+      const respuesta = await apiFetch(`${API_URL}/api/mercado/${tickerActual}?dias=${dias}`);
+
+      let ohlcv;
+      if (respuesta && respuesta.datos && respuesta.datos.length > 0) {
+        // Datos reales de la API: el endpoint ya filtra por 'dias' via query param,
+        // pero igual recortamos por si se pidieron más de los disponibles
+        const raw = respuesta.datos.slice(-dias);
+        ohlcv = raw.map(d => ({
+          fecha  : d.fecha,
+          open   : d.open,
+          high   : d.high,
+          low    : d.low,
+          close  : d.close,
+          volume : d.volume,
+          sma20  : d.sma_20,
+          sma50  : d.sma_50,
+          ema12  : d.ema_12,
+          bb_upper: d.bb_upper,
+          bb_lower: d.bb_lower,
+          bb_middle: d.bb_middle
+        }));
+
+        // ── Fecha del último dato real (pie de página del módulo) ────
+        const fechaEl = document.getElementById('m2-fecha');
+        if (fechaEl) {
+          const ultimaFecha = respuesta.fecha_fin || raw[raw.length - 1].fecha;
+          fechaEl.textContent = 'Actualizado: ' + ultimaFecha;
+        }
+      } else {
+        // Fallback a datos generados si la API no responde
+        console.warn('[M2] API no disponible — usando datos demo');
+        ohlcv = generarOHLCV(tickerActual, dias);
+      }
+      
+      // Indicadores ya calculados por la API (o recalculados en fallback)
+      const precios = ohlcv.map(d => d.close);
+      const sma20 = ohlcv[0].sma20 !== undefined
+        ? ohlcv.map(d => d.sma20)
+        : calcularSMA(precios, 20);
+      const sma50 = ohlcv[0].sma50 !== undefined
+        ? ohlcv.map(d => d.sma50)
+        : calcularSMA(precios, 50);
+      const ema12 = ohlcv[0].ema12 !== undefined
+        ? ohlcv.map(d => d.ema12)
+        : calcularEMA(precios, 12);
+      const bollinger = ohlcv[0].bb_upper !== undefined
+        ? { superior: ohlcv.map(d => d.bb_upper), inferior: ohlcv.map(d => d.bb_lower) }
+        : calcularBollinger(precios, 20, 2);
+      
+      const traces = [
+        {
+          x: ohlcv.map(d => d.fecha),
+          open: ohlcv.map(d => d.open),
+          high: ohlcv.map(d => d.high),
+          low: ohlcv.map(d => d.low),
+          close: ohlcv.map(d => d.close),
+          type: 'candlestick',
+          name: 'OHLCV',
+          yaxis: 'y1'
+        }
+      ];
+      
+      if (document.getElementById('sma20').checked) {
+        traces.push({
+          x: ohlcv.map(d => d.fecha),
+          y: sma20,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'SMA20',
+          line: { color: '#FF9800', width: 1 },
+          yaxis: 'y1'
+        });
+      }
+      
+      if (document.getElementById('sma50').checked) {
+        traces.push({
+          x: ohlcv.map(d => d.fecha),
+          y: sma50,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'SMA50',
+          line: { color: '#9C27B0', width: 1 },
+          yaxis: 'y1'
+        });
+      }
+      
+      if (document.getElementById('ema12').checked) {
+        traces.push({
+          x: ohlcv.map(d => d.fecha),
+          y: ema12,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'EMA12',
+          line: { color: '#00BCD4', width: 1 },
+          yaxis: 'y1'
+        });
+      }
+      
+      if (document.getElementById('bollinger').checked) {
+        traces.push({
+          x: ohlcv.map(d => d.fecha),
+          y: bollinger.superior,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'Bollinger Superior',
+          line: { color: 'rgba(33, 150, 243, 0)', width: 0 },
+          yaxis: 'y1',
+          showlegend: false
+        });
+        
+        traces.push({
+          x: ohlcv.map(d => d.fecha),
+          y: bollinger.inferior,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'Bollinger Inferior',
+          fill: 'tonexty',
+          fillcolor: 'rgba(33, 150, 243, 0.1)',
+          line: { color: 'rgba(33, 150, 243, 0)', width: 0 },
+          yaxis: 'y1',
+          showlegend: false
+        });
+      }
+      
+      traces.push({
+        x: ohlcv.map(d => d.fecha),
+        y: ohlcv.map(d => d.volume),
+        type: 'bar',
+        name: 'Volumen',
+        marker: {
+          color: ohlcv.map(d => d.close >= d.open ? '#26A69A' : '#EF5350')
+        },
+        yaxis: 'y2'
+      });
+      
+      const layout = {
+        title: `${tickerActual} - ${dias} días`,
+        xaxis: { rangeslider: { visible: false } },
+        yaxis: { title: 'Precio (USD)', side: 'left' },
+        yaxis2: { title: 'Volumen', overlaying: 'y', side: 'right' },
+        hovermode: 'x unified',
+        paper_bgcolor: '#0f172a',
+        plot_bgcolor: '#0f172a',
+        font: { color: '#f8fafc' },
+        margin: { l: 60, r: 60, t: 40, b: 40 },
+        legend: { orientation: 'h', y: 1.1 }
+      };
+      
+      Plotly.react('m2-chart', traces, layout, { responsive: true }).then(() => {
+        Plotly.Plots.resize('m2-chart');
+      });
+      
+      const ultimoPrecio = ohlcv[ohlcv.length - 1].close;
+      const primerPrecio = ohlcv[0].close;
+      const cambio = ((ultimoPrecio - primerPrecio) / primerPrecio * 100).toFixed(2);
+      const volumenTotal = ohlcv[ohlcv.length - 1].volume;
+      
+      document.getElementById('m2-price').textContent = '$' + ultimoPrecio.toFixed(2);
+      document.getElementById('m2-change').textContent = (cambio > 0 ? '+' : '') + cambio + '%';
+      document.getElementById('m2-change').className = 'metric-value ' + (cambio > 0 ? 'metric-positive' : 'metric-negative');
+      document.getElementById('m2-volume').textContent = (volumenTotal / 1000000).toFixed(1) + 'M';
+      document.getElementById('m2-market-cap').textContent = '$' + (ultimoPrecio * 1000000000 / 1000000000000).toFixed(2) + 'T';
+    }
+
+    // ========== M4: LSTM REGRESSOR ==========
+    function updateM4Slider() {
+      renderM4();
+    }
+
+
+    // ========== M5: ANÁLISIS NLP ==========
+    // Convierte una fecha ISO (fecha_publicacion de la API) en un texto
+    // relativo tipo "hace 12 min" / "hace 3 h" / "hace 2 días", igual que
+    // el formato que mostraba antes generarNoticias() con datos falsos.
+    function formatearFechaRelativa(fechaIso) {
+      if (!fechaIso) return '—';
+      const fecha = new Date(fechaIso);
+      if (isNaN(fecha.getTime())) return fechaIso;
+
+      const diffMs  = Date.now() - fecha.getTime();
+      const diffMin = Math.floor(diffMs / 60000);
+
+      if (diffMin < 1)   return 'hace instantes';
+      if (diffMin < 60)  return `hace ${diffMin} min`;
+      const diffH = Math.floor(diffMin / 60);
+      if (diffH < 24)    return `hace ${diffH} h`;
+      const diffDias = Math.floor(diffH / 24);
+      return `hace ${diffDias} día${diffDias === 1 ? '' : 's'}`;
+    }
+
+    // ─── MÓDULO M5: ANÁLISIS NLP ─────────────────────────────────────
+    // Conectado a /api/noticias?fuente=&sentimiento= (Notebook 8: VADER),
+    // que lee la colección 'noticias' de MongoDB. Los <select> del HTML
+    // mandan valores en minúsculas ('bloomberg', 'bullish', etc.) y el
+    // endpoint los normaliza internamente (case-insensitive / upper()).
+    //
+    // Importante: se distinguen DOS situaciones muy distintas, que antes
+    // se mostraban igual por error:
+    //   1) La API no responde (servidor caído / URL de ngrok vencida /
+    //      la colección 'noticias' está completamente vacía) → error real
+    //      de conexión. apiFetch() devuelve null en este caso.
+    //   2) La API respondió bien, pero el filtro elegido (ej. Reuters +
+    //      Bearish) no tiene ninguna coincidencia → esto es un resultado
+    //      válido y vacío, NO un error. El backend responde 200 con
+    //      "noticias": [] y un campo "mensaje" explicando el porqué.
+    //
+    // generarNoticias() se conserva en el archivo (por si se necesita para
+    // pruebas/demos manuales), pero YA NO se usa aquí como fallback: mostrar
+    // noticias de Bitcoin/Apple/Tesla no tiene sentido para un proyecto de
+    // mineras, y ocultaba el verdadero estado de la conexión con la API.
+    async function renderM5() {
+      const source    = document.getElementById('m5-source').value;
+      const sentiment = document.getElementById('m5-sentiment').value;
+      const feed      = document.getElementById('m5-news-feed');
+
+      feed.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:30px 0;">Cargando noticias…</p>';
+
+      const url   = `${API_URL}/api/noticias?fuente=${encodeURIComponent(source)}&sentimiento=${encodeURIComponent(sentiment)}`;
+      const datos = await apiFetch(url);
+
+      // ── Caso 1: error real de conexión (servidor caído, URL de ngrok
+      //    vencida, o la colección 'noticias' está completamente vacía) ──
+      if (!datos) {
+        console.warn('[M5] No se pudo conectar con /api/noticias. Verifica que el servidor FastAPI esté corriendo, que API_URL tenga la URL de ngrok vigente, y que el Notebook 8 (NLP) haya guardado noticias en MongoDB.');
+        feed.innerHTML = `
+          <div style="text-align:center; padding:30px 0; color:#EF5350;">
+            <p style="font-weight:600; margin-bottom:6px;">⚠ Sin conexión con la API</p>
+            <p style="font-size:12px; color:#94a3b8;">
+              Verifica que el servidor FastAPI esté corriendo y que <code>API_URL</code> tenga
+              la URL de ngrok vigente. Revisa la consola del navegador para más detalles.
+            </p>
+          </div>`;
+        return;
+      }
+
+      const noticias = Array.isArray(datos.noticias) ? datos.noticias : [];
+
+      // ── Caso 2: la API respondió bien, pero el filtro no tiene
+      //    coincidencias (ej. Reuters + Bearish sin resultados) ──────────
+      if (noticias.length === 0) {
+        const mensaje = datos.mensaje || 'No hay noticias que coincidan con este filtro.';
+        feed.innerHTML = `
+          <div style="text-align:center; padding:30px 0; color:#94a3b8;">
+            <p>📭 ${mensaje}</p>
+          </div>`;
+        return;
+      }
+
+      // ── Caso 3: hay noticias reales para mostrar ─────────────────────
+      // La API real (/api/noticias) devuelve estructura PLANA:
+      // { total, filtro_aplicado, compound_promedio,
+      //   sentimiento_consolidado, mensaje, noticias: [...] }
+      // Cada noticia trae: ticker, titulo, texto, fuente, url,
+      // sentimiento, compound, pos, neg, neu, fecha_publicacion, origen.
+      feed.innerHTML = noticias.map(n => `
+        <div class="news-item">
+          <div class="news-sentiment ${n.sentimiento.toLowerCase()}">
+            ${n.sentimiento === 'BULLISH' ? '📈' : n.sentimiento === 'BEARISH' ? '📉' : '➡️'}
+          </div>
+          <div class="news-content">
+            <div class="news-title">${n.titulo}</div>
+            <div class="news-text">${n.texto}</div>
+            <div class="news-meta">${n.fuente}${n.ticker ? ' · ' + n.ticker : ''} · ${formatearFechaRelativa(n.fecha_publicacion)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== M6: OPTIMIZADOR DE PORTAFOLIO (Markowitz) ==========
+    // Conectado a /api/estrategias?perfil_riesgo=X&horizonte=Y (Notebook 9),
+    // que devuelve un documento de la colección 'estrategias':
+    // { perfil_riesgo, horizonte, retorno_esperado_anual, volatilidad_anual,
+    //   sharpe_ratio, activos: [{ticker, tipo, asignacion_pct, riesgo, rendimiento_estimado_pct}],
+    //   frontera_eficiente: [{retorno, volatilidad}, ...], optimizacion_exitosa }
+    const RIESGO_COLOR = { 'Bajo': '#26A69A', 'Medio': '#FFA726', 'Alto': '#EF5350' };
+
+    async function renderM6(forceRefresh = false) {
+      const capital   = parseFloat(document.getElementById('m6-capital').value) || 100000;
+      const horizonte = document.getElementById('m6-horizon').value;
+      const perfil    = document.getElementById('m6-risk').value;
+
+      document.getElementById('m6-capital-display').textContent = '$' + capital.toLocaleString(undefined, {maximumFractionDigits: 0});
+
+      const doc = await apiFetch(`${API_URL}/api/estrategias?perfil_riesgo=${perfil}&horizonte=${horizonte}`, forceRefresh);
+
+      if (!doc) {
+        document.getElementById('m6-assets-table').innerHTML =
+          '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Sin conexión con la API. Verifica que el Notebook 9 haya guardado \'estrategias\' y que API_URL apunte al túnel activo.</td></tr>';
+        document.getElementById('m6-retorno-esperado').textContent = '—';
+        document.getElementById('m6-volatilidad').textContent = '—';
+        document.getElementById('m6-sharpe').textContent = '—';
+        return;
+      }
+
+      // ── Cards de resumen ──────────────────────────────────────────
+      document.getElementById('m6-retorno-esperado').textContent = (doc.retorno_esperado_anual * 100).toFixed(2) + '%';
+      document.getElementById('m6-volatilidad').textContent = (doc.volatilidad_anual * 100).toFixed(2) + '%';
+      document.getElementById('m6-sharpe').textContent = doc.sharpe_ratio.toFixed(2);
+
+      // ── Tabla de asignación de activos ──────────────────────────────
+      const activos = (doc.activos || []).slice().sort((a, b) => b.asignacion_pct - a.asignacion_pct);
+      const tbody = document.getElementById('m6-assets-table');
+      tbody.innerHTML = activos.map(a => `
+        <tr>
+          <td>${a.ticker}</td>
+          <td>${a.tipo}</td>
+          <td>${a.asignacion_pct.toFixed(2)}%</td>
+          <td style="color:${RIESGO_COLOR[a.riesgo] || '#94a3b8'};">${a.riesgo}</td>
+          <td style="color:${a.rendimiento_estimado_pct >= 0 ? '#26A69A' : '#EF5350'};">${a.rendimiento_estimado_pct >= 0 ? '+' : ''}${a.rendimiento_estimado_pct.toFixed(2)}%</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Sin datos de asignación.</td></tr>';
+
+      // ── Doughnut de distribución ──────────────────────────────────
+      const ctx = document.getElementById('m6-portfolio-chart');
+      if (ctx && window.Chart) {
+        const existingChart = Chart.getChart(ctx);
+        if (existingChart) existingChart.destroy();
+
+        const conAsignacion = activos.filter(a => a.asignacion_pct > 0);
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: conAsignacion.map(a => a.ticker),
+            datasets: [{
+              data: conAsignacion.map(a => a.asignacion_pct),
+              backgroundColor: ['#2563eb', '#38bdf8', '#06b6d4', '#1d4ed8', '#7dd3fc'],
+              borderColor: '#0f172a',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: '#f8fafc' }
+              }
+            }
+          }
+        });
+      }
+
+      // ── Frontera eficiente (Plotly) ────────────────────────────────
+      const frontera = doc.frontera_eficiente || [];
+      if (frontera.length > 0) {
+        const traceFrontera = {
+          x: frontera.map(p => p.volatilidad * 100),
+          y: frontera.map(p => p.retorno * 100),
+          type: 'scatter', mode: 'lines', name: 'Frontera Eficiente',
+          line: { color: '#38bdf8', width: 2 }
+        };
+        const traceActual = {
+          x: [doc.volatilidad_anual * 100], y: [doc.retorno_esperado_anual * 100],
+          type: 'scatter', mode: 'markers', name: `Perfil ${perfil}`,
+          marker: { size: 14, color: '#2563eb', symbol: 'star', line: { color: '#f8fafc', width: 1 } }
+        };
+        Plotly.react('m6-frontier-chart', [traceFrontera, traceActual], {
+          paper_bgcolor: '#0f172a', plot_bgcolor: '#0f172a',
+          font: { color: '#f8fafc' },
+          xaxis: { title: 'Volatilidad Anual (%)', gridcolor: '#1e293b' },
+          yaxis: { title: 'Retorno Esperado Anual (%)', gridcolor: '#1e293b' },
+          legend: { orientation: 'h', y: 1.15 },
+          margin: { l: 60, r: 30, t: 20, b: 50 }
+        }, { responsive: true });
+      }
+    }
+
+    // ========== M7: PORTAFOLIO ==========
+    // Conectado a /api/backtests?modelo=X&perfil_riesgo=Y (Notebook 10), que
+    // devuelve un documento de la colección 'backtests': { metricas, equity_curve,
+    // trades, posiciones_finales: [{ticker, cantidad, precio_entrada, precio_actual,
+    // valor_actual, pnl_usd, pnl_pct, capital_inicial_sleeve, en_posicion}] }
+    async function renderM7(forceRefresh = false) {
+      const modelo = document.getElementById('m7-model').value;
+      const perfil = document.getElementById('m7-risk').value;
+
+      const doc = await apiFetch(`${API_URL}/api/backtests?modelo=${modelo}&perfil_riesgo=${perfil}`, forceRefresh);
+
+      if (!doc) {
+        document.getElementById('m7-positions-table').innerHTML =
+          '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Sin conexión con la API. Verifica que el Notebook 10 haya guardado \'backtests\'.</td></tr>';
+        ['m7-valor-total','m7-pnl','m7-retorno','m7-sharpe'].forEach(id => document.getElementById(id).textContent = '—');
+        return;
+      }
+
+      const posiciones = doc.posiciones_finales || [];
+      const m = doc.metricas || {};
+
+      // ── Cards de resumen ──────────────────────────────────────────
+      const valorTotal = posiciones.reduce((s, p) => s + p.valor_actual, 0);
+      const pnlTotal    = posiciones.reduce((s, p) => s + p.pnl_usd, 0);
+      const capitalInicial = posiciones.reduce((s, p) => s + p.capital_inicial_sleeve, 0);
+      const retornoPct = capitalInicial > 0 ? (pnlTotal / capitalInicial * 100) : 0;
+
+      document.getElementById('m7-valor-total').textContent = '$' + valorTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      const pnlEl = document.getElementById('m7-pnl');
+      pnlEl.textContent = (pnlTotal >= 0 ? '+$' : '-$') + Math.abs(pnlTotal).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      pnlEl.className = 'metric-value ' + (pnlTotal >= 0 ? 'metric-positive' : 'metric-negative');
+      const retornoEl = document.getElementById('m7-retorno');
+      retornoEl.textContent = (retornoPct >= 0 ? '+' : '') + retornoPct.toFixed(2) + '%';
+      retornoEl.className = 'metric-value ' + (retornoPct >= 0 ? 'metric-positive' : 'metric-negative');
+      document.getElementById('m7-sharpe').textContent = (m.sharpe_ratio !== undefined) ? m.sharpe_ratio.toFixed(2) : '—';
+
+      // ── Tabla de posiciones ──────────────────────────────────────
+      const tbody = document.getElementById('m7-positions-table');
+      tbody.innerHTML = posiciones.map(p => `
+        <tr>
+          <td>${p.ticker}</td>
+          <td>${p.cantidad}</td>
+          <td>${p.precio_entrada !== null ? '$' + p.precio_entrada.toFixed(2) : '—'}</td>
+          <td>$${p.precio_actual.toFixed(2)}</td>
+          <td style="color: ${p.pnl_usd >= 0 ? '#26A69A' : '#EF5350'};">${p.pnl_usd >= 0 ? '+' : '-'}$${Math.abs(p.pnl_usd).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Sin posiciones.</td></tr>';
+
+      // ── Pie de distribución (por valor actual) ────────────────────
+      const ctx = document.getElementById('m7-distribution-chart');
+      if (ctx && window.Chart) {
+        const chartInstance = Chart.getChart(ctx);
+        if (chartInstance) chartInstance.destroy();
+
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: posiciones.map(p => p.ticker),
+            datasets: [{
+              data: posiciones.map(p => p.valor_actual),
+              backgroundColor: ['#2563eb', '#38bdf8', '#06b6d4', '#1d4ed8', '#7dd3fc'],
+              borderColor: '#0f172a',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: '#f8fafc' }
+              }
+            }
+          }
+        });
+      }
+
+      // ── Curva de equity ─────────────────────────────────────────
+      const ctxEquity = document.getElementById('m7-equity-chart');
+      if (ctxEquity && window.Chart) {
+        const chartInstance = Chart.getChart(ctxEquity);
+        if (chartInstance) chartInstance.destroy();
+
+        const curva = doc.equity_curve || [];
+
+        new Chart(ctxEquity, {
+          type: 'line',
+          data: {
+            labels: curva.map(p => p.fecha),
+            datasets: [{
+              label: 'Equity',
+              data: curva.map(p => p.valor),
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#f8fafc' }
+              }
+            },
+            scales: {
+              y: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8', maxTicksLimit: 12 },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // ========== M8: BROKER ==========
+    function renderM8() {
+      // Historial ya renderizado en HTML
+    }
+
+    function openOrderConfirmation() {
+      const ticker = document.getElementById('m8-ticker').value;
+      const direction = document.getElementById('m8-direction').value;
+      const orderType = document.getElementById('m8-order-type').value;
+      const qty = parseInt(document.getElementById('m8-quantity').value);
+      const precio = CONFIG.prices[ticker] || 100;
+      const total = (precio * qty).toFixed(2);
+      const comision = (total * 0.001).toFixed(2);
+      const totalConComision = (parseFloat(total) + parseFloat(comision)).toFixed(2);
+      
+      document.getElementById('modal-ticker').textContent = ticker;
+      document.getElementById('modal-direction').textContent = direction;
+      document.getElementById('modal-type').textContent = orderType;
+      document.getElementById('modal-qty').textContent = qty;
+      document.getElementById('modal-price').textContent = '$' + precio.toFixed(2);
+      document.getElementById('modal-total').textContent = '$' + totalConComision;
+      
+      document.getElementById('order-confirmation-modal').classList.add('active');
+      document.getElementById('confirm-checkbox').checked = false;
+      document.getElementById('confirm-btn').disabled = true;
+    }
+
+    function closeOrderConfirmation() {
+      document.getElementById('order-confirmation-modal').classList.remove('active');
+    }
+
+    function updateConfirmBtn() {
+      document.getElementById('confirm-btn').disabled = !document.getElementById('confirm-checkbox').checked;
+    }
+
+    function submitOrder() {
+      alert('Orden enviada exitosamente');
+      closeOrderConfirmation();
+    }
+
+    // ========== M9: DASHBOARD COMPLETO ==========
+    function renderM9() {
+      const ohlcv = generarOHLCV(tickerActual, 90);
+      const precios = ohlcv.map(d => d.close);
+      const ultimoPrecio = precios[precios.length - 1];
+      const primerPrecio = precios[0];
+      const cambio = ((ultimoPrecio - primerPrecio) / primerPrecio * 100).toFixed(2);
+      
+      document.getElementById('m9-ticker').textContent = tickerActual;
+      document.getElementById('m9-price').textContent = '$' + ultimoPrecio.toFixed(2);
+      document.getElementById('m9-change').textContent = (cambio > 0 ? '+' : '') + cambio + '%';
+      
+      const traces = [
+        {
+          x: ohlcv.map(d => d.fecha),
+          open: ohlcv.map(d => d.open),
+          high: ohlcv.map(d => d.high),
+          low: ohlcv.map(d => d.low),
+          close: ohlcv.map(d => d.close),
+          type: 'candlestick',
+          name: 'OHLCV'
+        }
+      ];
+      
+      const layout = {
+        title: `${tickerActual} - Análisis Integrado`,
+        xaxis: { rangeslider: { visible: false } },
+        hovermode: 'x unified',
+        paper_bgcolor: '#0f172a',
+        plot_bgcolor: '#0f172a',
+        font: { color: '#f8fafc' },
+        margin: { l: 60, r: 60, t: 40, b: 40 }
+      };
+      
+      Plotly.react('m9-main-chart', traces, layout, { responsive: true }).then(() => {
+        Plotly.Plots.resize('m9-main-chart');
+      });
+      
+      const ctxEquity = document.getElementById('m9-equity-chart');
+      if (ctxEquity && window.Chart) {
+        const chartInstance = Chart.getChart(ctxEquity);
+        if (chartInstance) chartInstance.destroy();
+        
+        const dias = 360;
+        const labels = Array.from({length: dias}, (_, i) => `Día ${i+1}`);
+        const equityIA = Array.from({length: dias}, (_, i) => {
+          return 100000 + Math.random() * 15000 + i * 95;
+        });
+        const equityBH = Array.from({length: dias}, (_, i) => {
+          return 100000 + Math.random() * 10000 + i * 80;
+        });
+        
+        new Chart(ctxEquity, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Estrategia IA',
+                data: equityIA,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+              },
+              {
+                label: 'Buy & Hold',
+                data: equityBH,
+                borderColor: '#9E9E9E',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                fill: false,
+                tension: 0.4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#f8fafc' }
+              }
+            },
+            scales: {
+              y: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              }
+            }
+          }
+        });
+      }
+      
+      const ctxReturns = document.getElementById('m9-returns-histogram');
+      if (ctxReturns && window.Chart) {
+        const chartInstance = Chart.getChart(ctxReturns);
+        if (chartInstance) chartInstance.destroy();
+        
+        const bins = Array.from({length: 20}, (_, i) => `${-10 + i}%`);
+        const frecuencias = Array.from({length: 20}, () => Math.floor(Math.random() * 50) + 10);
+        
+        new Chart(ctxReturns, {
+          type: 'bar',
+          data: {
+            labels: bins,
+            datasets: [{
+              label: 'Frecuencia',
+              data: frecuencias,
+              backgroundColor: frecuencias.map((f, i) => i < 10 ? '#EF5350' : '#26A69A'),
+              borderColor: '#0f172a',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#f8fafc' }
+              }
+            },
+            scales: {
+              y: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function executeFullAnalysis() {
+      alert('Ejecutando análisis completo con todos los 16 modelos...');
+      renderM9();
+    }
+
+    // ========== M10: CONSOLA DE MODELOS ==========
+    function renderM10() {
+      // Renderizado ya incluido en HTML
+    }
+
+    function selectAllModels() {
+      document.querySelectorAll('.models-list input[type="checkbox"]').forEach(cb => cb.checked = true);
+    }
+
+    function deselectAllModels() {
+      document.querySelectorAll('.models-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+    }
+
+    function executeSelectedModels() {
+      const progressBar = document.getElementById('m10-progress-bar');
+      progressBar.classList.remove('hidden');
+      
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 30;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            progressBar.classList.add('hidden');
+          }, 500);
+        }
+        document.getElementById('m10-progress-fill').style.width = progress + '%';
+      }, 300);
+    }
+
+    // ========== M11: BACKTESTING ==========
+    // Conectado a /api/backtests?modelo=X&perfil_riesgo=Y (Notebook 10), mismo
+    // documento que M7 pero explotado a nivel de reporte técnico: metricas,
+    // equity_curve completa, y la lista de trades cerrados (con ticker y duración).
+    let m11TradesCache = [];
+
+    async function renderM11(forceRefresh = false) {
+      const modelo = document.getElementById('m11-model').value;
+      const perfil = document.getElementById('m11-risk').value;
+
+      const doc = await apiFetch(`${API_URL}/api/backtests?modelo=${modelo}&perfil_riesgo=${perfil}`, forceRefresh);
+
+      if (!doc) {
+        document.getElementById('m11-trades-table').innerHTML =
+          '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Sin conexión con la API. Verifica que el Notebook 10 haya guardado \'backtests\'.</td></tr>';
+        ['m11-card-total-return','m11-card-sharpe','m11-card-maxdd','m11-card-winrate','m11-card-pf','m11-card-trades']
+          .forEach(id => document.getElementById(id).textContent = '—');
+        return;
+      }
+
+      const m = doc.metricas || {};
+      m11TradesCache = doc.trades || [];
+
+      // ── Encabezado: período y costos reales ────────────────────────
+      const periodoEl = document.getElementById('m11-periodo');
+      if (periodoEl) {
+        periodoEl.textContent = `Período: ${doc.fecha_inicio || '—'} → ${doc.fecha_fin || '—'} · ` +
+          `Comisión: ${(doc.comision_pct * 100).toFixed(2)}% · Slippage: ${(doc.slippage_pct * 100).toFixed(2)}%`;
+      }
+
+      // ── Cards de resumen ──────────────────────────────────────────
+      const setCard = (valId, labelId, value, label, positive) => {
+        const el = document.getElementById(valId);
+        el.textContent = value;
+        el.style.color = positive === null ? '#f8fafc' : (positive ? '#26A69A' : '#EF5350');
+        if (labelId) {
+          const lbl = document.getElementById(labelId);
+          lbl.textContent = label;
+          lbl.style.color = positive === null ? '#94a3b8' : (positive ? '#26A69A' : '#EF5350');
+        }
+      };
+      setCard('m11-card-total-return', 'm11-card-total-return-label',
+        (m.total_return_pct >= 0 ? '+' : '') + m.total_return_pct.toFixed(1) + '%',
+        m.total_return_pct >= 0 ? '↑ Positivo' : '↓ Negativo', m.total_return_pct >= 0);
+      setCard('m11-card-sharpe', 'm11-card-sharpe-label',
+        m.sharpe_ratio.toFixed(2),
+        m.sharpe_ratio >= 1 ? 'Bueno' : (m.sharpe_ratio >= 0 ? 'Aceptable' : 'Débil'), m.sharpe_ratio >= 0);
+      document.getElementById('m11-card-maxdd').textContent = m.max_drawdown_pct.toFixed(1) + '%';
+      setCard('m11-card-winrate', 'm11-card-winrate-label',
+        m.win_rate_pct.toFixed(1) + '%',
+        m.win_rate_pct >= 50 ? 'Bueno' : 'Bajo', m.win_rate_pct >= 50);
+      setCard('m11-card-pf', 'm11-card-pf-label',
+        m.profit_factor.toFixed(2),
+        m.profit_factor >= 1.5 ? 'Fuerte' : (m.profit_factor >= 1 ? 'Aceptable' : 'Débil'), m.profit_factor >= 1);
+      document.getElementById('m11-card-trades').textContent = m.total_trades;
+
+      // ── Tabla de métricas detalladas ────────────────────────────────
+      const metricsRows = [
+        ['Total Return', (m.total_return_pct >= 0 ? '+' : '') + m.total_return_pct.toFixed(2) + '%'],
+        ['Ann. Return', (m.retorno_anualizado_pct >= 0 ? '+' : '') + m.retorno_anualizado_pct.toFixed(2) + '%'],
+        ['Sharpe Ratio', m.sharpe_ratio.toFixed(2)],
+        ['Sortino Ratio', m.sortino_ratio.toFixed(2)],
+        ['Max Drawdown', m.max_drawdown_pct.toFixed(2) + '%'],
+        ['Win Rate', m.win_rate_pct.toFixed(1) + '%'],
+        ['Profit Factor', m.profit_factor.toFixed(2)],
+        ['Total Trades', m.total_trades]
+      ];
+      document.getElementById('m11-metrics-table').innerHTML =
+        metricsRows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+      // ── Curva de equity ─────────────────────────────────────────
+      const ctxEquity = document.getElementById('m11-equity-chart');
+      if (ctxEquity && window.Chart) {
+        const chartInstance = Chart.getChart(ctxEquity);
+        if (chartInstance) chartInstance.destroy();
+
+        const curva = doc.equity_curve || [];
+
+        new Chart(ctxEquity, {
+          type: 'line',
+          data: {
+            labels: curva.map(p => p.fecha),
+            datasets: [{
+              label: 'Equity',
+              data: curva.map(p => p.valor),
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#f8fafc' }
+              }
+            },
+            scales: {
+              y: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8', maxTicksLimit: 14 },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              }
+            }
+          }
+        });
+      }
+
+      // ── Histograma de retornos por trade (bins calculados a partir de datos reales) ──
+      const ctxReturns = document.getElementById('m11-returns-histogram');
+      if (ctxReturns && window.Chart) {
+        const chartInstance = Chart.getChart(ctxReturns);
+        if (chartInstance) chartInstance.destroy();
+
+        const retornos = m11TradesCache.map(t => t.retorno_pct);
+        let bins = [], frecuencias = [], colores = [];
+
+        if (retornos.length > 0) {
+          const nBins = 12;
+          const minR = Math.min(...retornos), maxR = Math.max(...retornos);
+          const ancho = (maxR - minR) / nBins || 1;
+          const conteo = new Array(nBins).fill(0);
+          retornos.forEach(r => {
+            let idx = Math.floor((r - minR) / ancho);
+            if (idx >= nBins) idx = nBins - 1;
+            if (idx < 0) idx = 0;
+            conteo[idx]++;
+          });
+          bins = Array.from({length: nBins}, (_, i) => (minR + i * ancho).toFixed(1) + '%');
+          frecuencias = conteo;
+          colores = Array.from({length: nBins}, (_, i) => (minR + i * ancho) < 0 ? '#EF5350' : '#26A69A');
+        }
+
+        new Chart(ctxReturns, {
+          type: 'bar',
+          data: {
+            labels: bins,
+            datasets: [{
+              label: 'Frecuencia',
+              data: frecuencias,
+              backgroundColor: colores,
+              borderColor: '#0f172a',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#f8fafc' }
+              }
+            },
+            scales: {
+              y: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+              }
+            }
+          }
+        });
+      }
+
+      // ── Últimos 20 trades (más recientes primero) ────────────────
+      const ultimos = m11TradesCache.slice(-20).reverse();
+      document.getElementById('m11-trades-table').innerHTML = ultimos.map(t => `
+        <tr>
+          <td>${t.numero}</td>
+          <td>${t.fecha_entrada}</td>
+          <td>${t.fecha_salida}</td>
+          <td>${t.ticker}</td>
+          <td style="color: ${t.retorno_pct >= 0 ? '#26A69A' : '#EF5350'};">${t.retorno_pct >= 0 ? '+' : ''}${t.retorno_pct.toFixed(2)}%</td>
+          <td>${t.duracion_dias} días</td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Sin trades cerrados en esta combinación.</td></tr>';
+    }
+
+    function exportCSV() {
+      if (!m11TradesCache.length) {
+        alert('No hay trades cargados para exportar. Selecciona un modelo/perfil primero.');
+        return;
+      }
+      const headers = ['numero','ticker','fecha_entrada','fecha_salida','precio_entrada','precio_salida','retorno_pct','duracion_dias'];
+      const filas = m11TradesCache.map(t => headers.map(h => t[h]).join(','));
+      const csv = [headers.join(','), ...filas].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'backtesting_trades.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ========== M8: PREVIEW UPDATES ==========
+    function updateM8Preview() {
+      const ticker = document.getElementById('m8-ticker').value;
+      const qty = parseInt(document.getElementById('m8-quantity').value) || 0;
+      const precio = CONFIG.prices[ticker] || 100;
+      const total = precio * qty;
+      const comision = total * 0.001;
+      
+      document.getElementById('m8-preview-price').textContent = '$' + precio.toFixed(2);
+      document.getElementById('m8-preview-total').textContent = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('m8-preview-commission').textContent = '$' + comision.toFixed(2);
+      document.getElementById('m8-preview-total-commission').textContent = '$' + (total + comision).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    // ========== INICIALIZACIÓN ==========
+    function init() {
+      renderM2();
+      
+      // Setup listeners for M8
+      const m8Ticker = document.getElementById('m8-ticker');
+      const m8Qty = document.getElementById('m8-quantity');
+      if (m8Ticker) m8Ticker.addEventListener('change', updateM8Preview);
+      if (m8Qty) m8Qty.addEventListener('input', updateM8Preview);
+      updateM8Preview();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Si ya estamos logueados (para desarrollo), inicializar
+      if (!document.getElementById('app-main').classList.contains('hidden')) {
+        init();
+      }
+    });
+  </script>
+</body>
+</html>
